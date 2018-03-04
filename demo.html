@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <!-- vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <!-- besTemplate -->
+    <script src="scripts/besTemplate.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/besTemplate.css">
+    <!-- customer script style -->
+    <link rel="stylesheet" type="text/css" href="demo.css">
+    <script src="demo.js"></script>
+    <title>besTemplate</title>
+</head>
+
+<body>
+    <div id="app">
+        <div class="list hidden-sm-down">
+            <ul v-for="li in list">
+                <li><a href="#" class="text-primary h6" @click="li.show=!li.show"><strong>{{li.title}}</strong></a></li>
+                <ul v-if="li.show">
+                    <li v-for="i in li.group">
+                        <a class="text-info" :href="'#'+i">{{i}}</a></li>
+                </ul>
+            </ul>
+        </div>
+        <div class="demo">
+            <div class="card">
+                <div class="card-block">
+                    <h5 id="#ajax-btn">#ajax-btn</h5><br>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">url : </span>
+                        <input v-model="ajaxBtn.url" type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+                    </div><br>
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">result : </span>
+                        <span type="text" class="form-control" aria-describedby="basic-addon1">{{ajaxBtn.result}}</span>
+                    </div><br>
+                    <ajax-btn class="btn btn-primary" :url="ajaxBtn.url" text="send" @end="val=>ajaxBtn.result=val"></ajax-btn>
+                    <ajax-btn class="btn btn-primary" type="once" :url="ajaxBtn.url" text="send" @end="val=>ajaxBtn.result=val"></ajax-btn>
+                    <ajax-btn class="ajax-btn-default btn" type="once" :url="ajaxBtn.url" text="send" @end="val=>ajaxBtn.result=val"></ajax-btn>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+#app{
+	display: flex;
+	width: 100%;
+}
+#app .list{
+	background-color: #00fce9;
+	padding: 15px;
+	width: 250px;
+}
+.list>ul{
+	width: 100%;
+	padding-left: 10px;
+}
+.list ul{
+	/* list-style: none; */
+}
+#app .demo{
+	padding: 5px;
+	flex-grow: 1;
+}
