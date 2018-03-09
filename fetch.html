@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script type="text/javascript">
+		var myrequest = new Request('http://127.0.0.1:3000/api/delay');
+		fetch(myrequest).then(res=>{
+			return res.text()
+		}).then(res=>{
+			console.log(res)
+		})
+	</script>
+</body>
+</html>

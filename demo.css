@@ -1,20 +1,48 @@
 #app{
-	display: flex;
 	width: 100%;
 }
 #app .list{
 	background-color: #00fce9;
 	padding: 15px;
-	width: 250px;
+	width: 230px;
+	height: 100vh;
+	position: fixed;
+	z-index: 1000;
+}
+.goTop{
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+	position: fixed;
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-color: rgba(0, 0, 0, 0.1);
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+	right: 10px;
+	bottom: 10px;
 }
 .list>ul{
 	width: 100%;
-	padding-left: 10px;
+	padding-left: 20px;
 }
-.list ul{
+.list>ul>ul{
+	padding-left: 0;
 	/* list-style: none; */
+}
+.pointer{
+	cursor: pointer;
 }
 #app .demo{
 	padding: 5px;
-	flex-grow: 1;
+	padding: 5px 5px 5px 235px;
+}
+.color-ticks{
+	border: 1px solid rgba(0,0,0,0.1);
+	height: 150px;
+}
+.demo>.card>.card-block{
+	border-bottom: 1px solid rgba(0,0,0,0.2);
 }
