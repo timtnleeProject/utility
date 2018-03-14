@@ -8,10 +8,30 @@
 	<script type="text/javascript">
 		var myrequest = new Request('http://127.0.0.1:3000/api/delay');
 		fetch(myrequest).then(res=>{
+			console.log(res)
 			return res.text()
 		}).then(res=>{
 			console.log(res)
 		})
+		// var length=localStorage.length
+		// localStorage.setItem('hello','world')
+		console.log(localStorage.hello)
+
+		var players= {
+			lksj:{},
+			cvlk2:{},
+			idk23:{
+				name:'',
+				dfd:'',
+				player:p
+			},
+			a:1,
+			b:2
+		}
+		players.c=new Object()
+		players.c={}
+		delete players.a;
+		players.idk23 == players['idk23']
 	</script>
 </body>
 </html>

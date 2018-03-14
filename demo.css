@@ -36,8 +36,12 @@
 	cursor: pointer;
 }
 #app .demo{
-	padding: 5px;
 	padding: 5px 5px 5px 235px;
+}
+@media only screen and (max-width: 768px){
+	#app .demo{
+		padding: 5px 5px 5px 5px;
+	}
 }
 .color-ticks{
 	border: 1px solid rgba(0,0,0,0.1);
@@ -45,4 +49,7 @@
 }
 .demo>.card>.card-block{
 	border-bottom: 1px solid rgba(0,0,0,0.2);
+}
+.on-off-btn {
+	width: 60px;
 }

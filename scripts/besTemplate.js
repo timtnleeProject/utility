@@ -150,8 +150,8 @@ let onOffBtn = Vue.extend(compo_options)
 Vue.component(compo_name, compo_options)
 Vue.component(compo_name, onOffBtn.extend({
     template: '<div v-on:click="truning" class="on-off-btn" :class="(value)?\'on-off-btn-on\':\'on-off-btn-off\'">\
-        <div class="wrap"><div class="on">{{text_on}}</div><div class="bar"></div>\
-        <div class="off">{{text_off}}</div></div>\
+        <div class="wrap-over"><div class="wrap"><div class="on">{{text_on}}</div><div class="bar"></div>\
+        <div class="off">{{text_off}}</div></div></div>\
         </div>'
 }))
 

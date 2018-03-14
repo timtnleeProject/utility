@@ -33,19 +33,20 @@ $on-off-btn-bar-width: 20px
 $on-off-btn-bg-color: rgba(0,187,179,0.8)
 $on-off-btn-border-color: #00bbb3
 .on-off-btn
-	border-radius: $on-off-btn-border-radius
-	overflow: hidden
 	cursor: pointer
-	box-sizing: border-box
-	width: 60px
-	border: 1px solid $on-off-btn-border-color
+	box-sizing: content-box
+	border-radius: $on-off-btn-border-radius
+	padding: 1px
+	background-color: $on-off-btn-border-color
+	.wrap-over
+		width: 100%
+		overflow: hidden
 	.wrap
-		box-sizing: border-box
-		transition: transform 0.4s
+		box-sizing: content-box
 		display: flex
+		transition: transform 0.4s
 		width: 200%
 		.on, .off
-			box-sizing: border-box
 			text-align: center
 			flex-grow: 1
 	.on
@@ -59,10 +60,10 @@ $on-off-btn-border-color: #00bbb3
 	.bar
 		width: $on-off-btn-bar-width
 		height: 100%
-		box-sizing: border-box
 		position: absolute
 		top: 0
 		left: 50%
+		box-sizing: border-box
 		transform: translateX(-50%)
 		border-radius: $on-off-btn-border-radius
 		background-color: white

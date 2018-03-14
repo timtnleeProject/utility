@@ -4,7 +4,8 @@
   border: 2px dotted white;
   border-radius: 50%;
   box-sizing: border-box;
-  animation: spin 2s infinite; }
+  -webkit-animation: spin 2s infinite;
+          animation: spin 2s infinite; }
 
 .ajax-btn-default.ajax-btn-ready {
   border: 1px solid black;
@@ -25,25 +26,37 @@
 .ajax-btn-content {
   height: 1em; }
 
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg); }
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }
+
 @keyframes spin {
   from {
-    transform: rotate(0deg); }
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg); }
   to {
-    transform: rotate(360deg); } }
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }
 
 .on-off-btn {
+  overflow: hidden;
   cursor: pointer;
   box-sizing: content-box;
+  width: 60px;
   border-radius: 4px;
-  padding: 1px;
-  background-color: #00bbb3; }
-  .on-off-btn .wrap-over {
-    width: 100%;
-    overflow: hidden; }
+  border: 1px solid #00bbb3;
+  padding: 0; }
+  .on-off-btn * {
+    box-sizing: border-box; }
   .on-off-btn .wrap {
-    box-sizing: content-box;
     display: flex;
+    transition: -webkit-transform 0.4s;
     transition: transform 0.4s;
+    transition: transform 0.4s, -webkit-transform 0.4s;
     width: 200%; }
     .on-off-btn .wrap .on, .on-off-btn .wrap .off {
       text-align: center;
@@ -62,17 +75,19 @@
     position: absolute;
     top: 0;
     left: 50%;
-    box-sizing: border-box;
-    transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
     border-radius: 4px;
     background-color: white;
     border: 1px solid rgba(0, 0, 0, 0.2); }
 
 .on-off-btn-on .wrap {
-  transform: translateX(0); }
+  -webkit-transform: translateX(0);
+          transform: translateX(0); }
 
 .on-off-btn-off .wrap {
-  transform: translateX(-50%); }
+  -webkit-transform: translateX(-50%);
+          transform: translateX(-50%); }
 
 .popup {
   position: fixed;
