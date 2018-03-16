@@ -1,37 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Document</title>
-</head>
-<body>
-	<script type="text/javascript">
-		var myrequest = new Request('http://127.0.0.1:3000/api/delay');
-		fetch(myrequest).then(res=>{
-			console.log(res)
-			return res.text()
-		}).then(res=>{
-			console.log(res)
-		})
-		// var length=localStorage.length
-		// localStorage.setItem('hello','world')
-		console.log(localStorage.hello)
 
-		var players= {
-			lksj:{},
-			cvlk2:{},
-			idk23:{
-				name:'',
-				dfd:'',
-				player:p
-			},
-			a:1,
-			b:2
-		}
-		players.c=new Object()
-		players.c={}
-		delete players.a;
-		players.idk23 == players['idk23']
-	</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="scripts/ajaxHandler.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <!-- besTemplate -->
+    <script src="scripts/besTemplate.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/besTemplate.css">
+    <!-- customer script style -->
+    <link rel="stylesheet" type="text/css" href="demo.css">
+</head>
+
+<body>
+	<div id="app">
+		result: {{result}}
+		<ajax-btn class="btn btn-primary" text="hello" :bes_ajax="besAjax" v-model="result"></ajax-btn>
+		<ajax-btn class="btn btn-primary" text="hello" :bes_ajax="besAjax" v-model="result"></ajax-btn>
+	</div>
+	
+    <script type="text/javascript">
+    var besAjax = BesAjaxRequest()
+    besAjax.log=true;
+    besAjax.errorHandler = function(e) {
+        console.log(`[errorHandler] code: ${e}`)
+    }
+    var defaultReq = besAjax.createRequest({
+        host: 'http://127.0.0.1:3000',
+        path: '/api/delay',
+        method: 'get',
+        body: {}
+    }, {
+        responseType: 'text',
+        retry: 7,
+        sleep: 1000,
+        name: 'defaultReq'
+    })
+    var postReq = defaultReq.extend({
+        method: 'post',
+        headers: { 'Content-Type': 'application/json', 'xxx': 'append' },
+        body: JSON.stringify({ name: 'tim' })
+    }, {
+        VIP: false,
+        name:'postReq'
+    })
+
+    for (let i = 0; i < 10; i++) {
+        defaultReq.extend({path: '/api/delay?date='+i}).send().then((res) => {
+        	console.log('**bg request done:'+res)
+    	})
+    }
+    postReq.send().then(function(res) {
+        console.log('**VIP request done:'+res)
+    })
+   	var app = new Vue({
+   		el:'#app',
+   		data:{
+   			result:'',
+   			besAjax:defaultReq
+   		}
+   	})
+    </script>
 </body>
+
 </html>

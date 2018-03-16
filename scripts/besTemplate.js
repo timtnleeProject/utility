@@ -1,7 +1,7 @@
 let compo_name = '',
-    compo_options = '',
-    compo_create = function() {
-        Vue.component(compo_name, compo_options)
+    compo_options = '';
+const compo_create = function(name,options) {
+        Vue.component(name, options)
     }
 compo_name = 'ajax-btn';
 compo_options = {
@@ -22,8 +22,7 @@ compo_options = {
             default: 'default'
         },
         url: {
-            type: String,
-            required: true
+            type: String
         },
         method: {
             type: String,
@@ -44,6 +43,7 @@ compo_options = {
             type: Boolean,
             default: true
         },
+        value : {},
         validate: {
             type: Function,
             default: function() {
@@ -53,6 +53,9 @@ compo_options = {
         validation: {
             type: Boolean,
             default: true
+        },
+        bes_ajax : {
+            type:Object
         }
     },
     data: function() {
@@ -68,6 +71,19 @@ compo_options = {
                 if (!this.validation)
                     return;
                 this.status = 'pending'
+                //use besAjax Class
+                if(this.bes_ajax){
+                    let com = this;
+                    this.$emit('send', this.bes_ajax['send']())
+                    this.bes_ajax['send']().then(function(res){
+                        com.status = 'success'
+                        com.$emit('input', res)
+                    }).catch(function(e){
+                        com.status = 'fail'
+                    })
+                    return;
+                }
+                //use normal xhr
                 var xhr = new XMLHttpRequest();
                 var post_body = '';
                 xhr.open(this.method, this.url);
@@ -90,6 +106,7 @@ compo_options = {
                 xhr.onreadystatechange = function() {
                     if (this.readyState === 4 && this.status === 200) {
                         com.status = 'success'
+                        com.$emit('input', this.responseText)
                         com.$emit('end', this.responseText)
                     } else if (this.readyState === 4) {
                         com.status = 'fail'
@@ -97,13 +114,12 @@ compo_options = {
                     }
                 }
             }
-
         }
     }
 }
 let ajaxBtn = Vue.extend(compo_options);
 
-Vue.component(compo_name, ajaxBtn.extend({
+compo_create(compo_name, ajaxBtn.extend({
     template: '<div class="ajax-btn" :class="\'ajax-btn-\'+status" v-on:click="send">\
     <div v-if="status===\'ready\'">{{text}}</div>\
     <div v-else-if="status===\'pending\'"><div class="loading"></div></div>\
@@ -113,7 +129,7 @@ Vue.component(compo_name, ajaxBtn.extend({
 }))
 
 compo_name = 'ajax-btn-custom'
-Vue.component(compo_name, ajaxBtn.extend({
+compo_create(compo_name, ajaxBtn.extend({
     template: '<div class="ajax-btn" :class="\'ajax-btn-\'+status" v-on:click="send">\
     <div v-if="status===\'ready\'"><slot name="ready"></slot></div>\
     <div v-else-if="status===\'pending\'"><slot name="pending"></slot></div>\
@@ -147,8 +163,8 @@ compo_options = {
     }
 }
 let onOffBtn = Vue.extend(compo_options)
-Vue.component(compo_name, compo_options)
-Vue.component(compo_name, onOffBtn.extend({
+compo_create(compo_name, compo_options)
+compo_create(compo_name, onOffBtn.extend({
     template: '<div v-on:click="truning" class="on-off-btn" :class="(value)?\'on-off-btn-on\':\'on-off-btn-off\'">\
         <div class="wrap-over"><div class="wrap"><div class="on">{{text_on}}</div><div class="bar"></div>\
         <div class="off">{{text_off}}</div></div></div>\
@@ -182,7 +198,7 @@ compo_options = {
         }
     }
 }
-Vue.component(compo_name, compo_options)
+compo_create(compo_name, compo_options)
 
 compo_name = 'drop-menu';
 compo_options = {
@@ -205,7 +221,7 @@ compo_options = {
         }
     }
 }
-Vue.component(compo_name, compo_options)
+compo_create(compo_name, compo_options)
 
 compo_name = 'popup-alert';
 compo_options = {
@@ -232,14 +248,14 @@ compo_options = {
     }
 }
 let popupAlert = Vue.extend(compo_options)
-Vue.component(compo_name, popupAlert.extend({
+compo_create(compo_name, popupAlert.extend({
     template: '<div class="popup popup-alert" v-if="value"><div class="content">\
         <div class="message">{{message}}</div>\
         <button class="confirm" v-on:click="confirm">{{text_confirm}}</button>\
     </div></div>'
 }))
 compo_name = 'popup-alert-custom';
-Vue.component(compo_name, popupAlert.extend({
+compo_create(compo_name, popupAlert.extend({
     template: '<div class="popup popup-alert" v-if="value"><div class="content">\
         <slot></slot>\
         <button class="confirm" v-on:click="confirm">{{text_confirm}}</button>\
@@ -282,7 +298,7 @@ let popupConfirm = popupAlert.extend({
         }
     }
 })
-Vue.component(compo_name, popupConfirm.extend({
+compo_create(compo_name, popupConfirm.extend({
     template: '<div class="popup popup-confirm" v-if="value"><div class="content">\
         <div class="message">{{message}}</div>\
         <button class="confirm" v-on:click="confirm(true)">{{text_confirm}}</button>\
@@ -290,7 +306,7 @@ Vue.component(compo_name, popupConfirm.extend({
     </div></div>'
 }))
 compo_name = 'popup-confirm-custom';
-Vue.component(compo_name, popupConfirm.extend({
+compo_create(compo_name, popupConfirm.extend({
     template: '<div class="popup popup-confirm" v-if="value"><div class="content">\
         <slot></slot>\
         <button class="confirm" v-on:click="confirm(true)">{{text_confirm}}</button>\
@@ -315,10 +331,20 @@ let popupPrompt = popupConfirm.extend({
         }
     }
 })
-Vue.component(compo_name, popupPrompt.extend({
+compo_create(compo_name, popupPrompt.extend({
     template: '<div class="popup popup-prompt" v-if="value"><div class="content">\
         <div class="message">{{message}}</div>\
         <input v-model="input">\
+        <button class="confirm" v-on:click="confirm(true)">{{text_confirm}}</button>\
+        <button class="cancel" v-on:click="confirm(false)">{{text_cancel}}</button>\
+    </div></div>'
+}))
+compo_name = 'popup-prompt-passward';
+compo_create(compo_name, popupPrompt.extend({
+    template: '<div class="popup popup-prompt-passward" v-if="value"><div class="content">\
+        <div class="message">{{message}}</div>\
+        <input v-model="input">\
+        <input>\
         <button class="confirm" v-on:click="confirm(true)">{{text_confirm}}</button>\
         <button class="cancel" v-on:click="confirm(false)">{{text_cancel}}</button>\
     </div></div>'

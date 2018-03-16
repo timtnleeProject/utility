@@ -12,12 +12,29 @@ app.use((req,res,next)=>{
 	res.header('Access-Control-Allow-Headers', '*')
 	next()
 })
+app.get('/', (req,res)=>{
+	res.end('<a href="demo.html">Demo</a><br><a href="fetch.html">Fetch</a>')
+})
+app.get('/api', (req,res)=>{
+	res.end('hello')
+})
+app.post('/api', (req,res)=>{
+	res.end('hello')
+})
 app.get('/api/delay', (req,res)=>{
 	setTimeout(()=>{
 		res.end(`現在時間 : ${new Date()}`)
 	},1000)
 })
+let fatalcount =0
+app.get('/api/fatal', (req,res)=>{
+	if(fatalcount%5!==0)
+		res.status(500);
+	fatalcount++;
+	res.end('fatal')
+})
 app.post('/api/delay', (req,res)=>{
+	console.log(req.body)
 	setTimeout(()=>{
 		res.end(`hello ${req.body.name}`)
 	},1000)

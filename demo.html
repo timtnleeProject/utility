@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
     <!-- bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
@@ -76,7 +77,7 @@
                         <div class="row">
                             <div class="col">
                                 <h6>defult</h6>
-                                <ajax-btn class="btn btn-primary" :url="ajaxBtn.url" text="send" @end="val=>ajaxBtn.result=val"></ajax-btn>
+                                <ajax-btn class="btn btn-primary" :url="ajaxBtn.url" text="send" v-model="ajaxBtn.result"></ajax-btn>
                             </div>
                             <div class="col">
                                 <h6>once</h6>
@@ -105,14 +106,14 @@
                             <span class="input-group-addon" id="basic-addon1">body.name</span>
                             <input v-model="ajaxBtn.body.name" type="text" class="form-control" aria-describedby="basic-addon1">
                         </div>
-                        <small class="mr-5">isvalid(computed) : {{validation}}</small>
-                        <small>isvalid(methods) : {{ajaxBtn.isvalid}}</small>
                         <div class="row">
                             <div class="col">
+                                <small class="mr-5">isvalid(computed) : {{validation_body}}</small>
                                 <h6>post request: json<br>validation</h6>
-                                <ajax-btn class="btn btn-primary" method="post" :headers="ajaxBtn.headers" :body="ajaxBtn.body" :url="ajaxBtn.url" text="send" :validation="validation" @end="val=>ajaxBtn.result=val"></ajax-btn>
+                                <ajax-btn class="btn btn-primary" method="post" :headers="ajaxBtn.headers" :body="ajaxBtn.body" :url="ajaxBtn.url" text="send" :validation="validation_body" @end="val=>ajaxBtn.result=val"></ajax-btn>
                             </div>
                             <div class="col">
+                                <small>isvalid(methods) : {{ajaxBtn.isvalid}}</small>
                                 <h6>post request: urlecoding<br>validate</h6>
                                 <ajax-btn class="btn btn-primary" method="post" :json="false" :headers="ajaxBtn.headers" :body="ajaxBtn.body" :url="ajaxBtn.url" text="send" :validate="validate" @end="val=>ajaxBtn.result=val"></ajax-btn>
                             </div>
@@ -236,9 +237,9 @@
                             </div>
                             <div class="col">
                                 <popup-confirm-custom v-model="popup.confirmCustom.show" :message="popup.message" v-on:confirm="confirm(true)" v-on:cancel="confirm(false)" text_confirm="確認" text_cancel="取消">
-                                    <slot><img src="assets/qm.png" style="width:30px">
-                                        <br>{{popup.message}}
-                                        <br>
+                                    <slot>
+                                        <img src="assets/qm.png" style="width:30px">
+                                        {{popup.message}}
                                     </slot>
                                 </popup-confirm-custom>
                                 <label>popup-confirm-custom</label>
@@ -248,7 +249,7 @@
                                 <popup-confirm-custom v-model="popup.confirmCustomValid.show" :message="popup.message" v-on:confirm="confirm(true)" v-on:cancel="confirm(false)" :validation="validation" text_confirm="確認" text_cancel="取消">
                                     <slot>
                                         <label>name:</label>
-                                        <input type="email" name="" v-model="inputText"><br>
+                                        <input type="email" name="" v-model="inputText">
                                         <span style="display: inline-block;">{{validationMes}}</span>
                                     </slot>
                                 </popup-confirm-custom>
@@ -265,6 +266,9 @@
                                 <label>popup-prompt</label>
                                <on-off-btn v-model="popup.prompt.show"></on-off-btn> 
                             </div>
+                            <div class="col">
+                                <popup-prompt-passward ></popup-prompt-passward>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -273,5 +277,4 @@
     </div>
     </div>
 </body>
-
 </html>

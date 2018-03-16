@@ -129,8 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         computed:{
-            validation:function(){
-                return this.ajaxBtn.body.name!=='';
+            validation_body:function(){
+                return this.ajaxBtn.body.name.trim()!=='';
             },
             colorTicksHex: function(){
                 let hex=this.colorTicks.map(function(color){
