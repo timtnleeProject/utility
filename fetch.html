@@ -20,15 +20,22 @@
 </head>
 
 <body>
-	<div id="app">
-		result: {{result}}
-		<ajax-btn class="btn btn-primary" text="hello" :bes_ajax="besAjax" v-model="result"></ajax-btn>
-		<ajax-btn class="btn btn-primary" text="hello" :bes_ajax="besAjax" v-model="result"></ajax-btn>
-	</div>
-	
+    <div id="app">
+        result: {{result}}
+        <ajax-btn class="btn btn-primary" text="hello" :bes_ajax="besAjax" v-model="result" v-on:send="reqHandeler" :fetch_options="{path:'/api/fatal',headers:{costom:'myheader'}}"></ajax-btn>
+        <ajax-btn class="btn btn-primary" text="VIP" text_success="VIP" :bes_ajax="quickAjax" v-model="result" v-on:send="reqHandeler" :fetch_options="{path:'/api'}" :options="{name:'VIP insert'}"></ajax-btn>
+        <br>
+        <button class="btn btn-info" @click="multiRequest">multiRequest</button>
+        <div>
+        	<h4>bad requests count (imitate slow background requests): {{count}}</h4>
+        	<h2>results</h2>
+        	<div v-for="r in results">{{r}}</div>
+        </div>
+    </div>
     <script type="text/javascript">
     var besAjax = BesAjaxRequest()
-    besAjax.log=true;
+    besAjax.log = false;
+    besAjax.poolSize = 5;
     besAjax.errorHandler = function(e) {
         console.log(`[errorHandler] code: ${e}`)
     }
@@ -41,32 +48,89 @@
         responseType: 'text',
         retry: 7,
         sleep: 1000,
-        name: 'defaultReq'
+        name: 'defaultReq',
+        primary:2
+    })
+    var quickReq = defaultReq.extend({
+    	path:'/'
+    },{
+    	primary:0,
+    	name:'quickReq'
+    })
+    var badReq = defaultReq.extend({
+    	path:'/api/fatal'
+    },{
+    	primary:5,
+    	name:'badReq'
     })
     var postReq = defaultReq.extend({
-        method: 'post',
+        method: 'get',
         headers: { 'Content-Type': 'application/json', 'xxx': 'append' },
-        body: JSON.stringify({ name: 'tim' })
+        //body: JSON.stringify({ name: 'tim' })
     }, {
-        VIP: false,
-        name:'postReq'
+        primary:3,
+        name: 'postReq'
     })
+    // for(let i=0;i<25;i++){
+    // 	badReq.extend({query:`?${i}`},{name:`BadReq${i}`}).send().then((res)=>{
+    // 		app.results.push(`Bad request ${i} success`)
+    // 		app.count = app.count+1;
+    // 		return;
+    // 	}).catch((e)=>{
+    // 		app.results.push(`Bad request ${i} fail`)
+    // 		app.count = app.count+1;
+    // 	})
+    // }
+    // for (let i = 0; i < 10; i++) {
+    //                 defaultReq.extend({ path: '/?date=' + i }).send().then((res) => {
+    //                     console.log(`**bg request ${i+1} done: ${res}`)
 
-    for (let i = 0; i < 10; i++) {
-        defaultReq.extend({path: '/api/delay?date='+i}).send().then((res) => {
-        	console.log('**bg request done:'+res)
-    	})
-    }
-    postReq.send().then(function(res) {
-        console.log('**VIP request done:'+res)
+    //                 }).catch(function(e) {
+    //                     console.log(`**bg request ${i+1} fail: ${e}`)
+    //                 })
+    //             }
+    //             postReq.extend({path:'/api/delay?date='+date}).send().then(function(res) {
+    //                 console.log('**VIP request done:' + res)
+    //             })
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            result: '',
+            besAjax: defaultReq,
+            quickAjax : quickReq,
+            results:[],
+            count:0
+        },
+        methods: {
+            reqHandeler: function(promise) {
+                var me = this;
+                promise.then(function(res) {
+                    console.log('handle response:' + res)
+                    me.results.push(res)
+                })
+            },
+            multiRequest: function() {
+            	var me= this;
+                for (let i = 0; i < 10; i++) {
+                	quickReq.send().then((res)=>{
+                		me.results.push(res)
+                	})
+                    defaultReq.extend({ path: '/api/delay?date=' + i }).send().then((res) => {
+                        //console.log(`**bg request ${i+1} done: ${res}`)
+                        me.results.push(res)
+                    }).catch(function(e) {
+                        //console.log(`**bg request ${i+1} fail: ${e}`)
+                        me.results.push(res)
+                    })
+                    postReq.extend({query:'?'+i},{name:'postReq'+i}).send().then(function(res) {
+                    	//console.log('**VIP request done:' + res)
+                    	me.results.push('postReq'+i)
+                	})
+                }
+            }
+        }
     })
-   	var app = new Vue({
-   		el:'#app',
-   		data:{
-   			result:'',
-   			besAjax:defaultReq
-   		}
-   	})
     </script>
 </body>
 

@@ -16,10 +16,10 @@ app.get('/', (req,res)=>{
 	res.end('<a href="demo.html">Demo</a><br><a href="fetch.html">Fetch</a>')
 })
 app.get('/api', (req,res)=>{
-	res.end('hello')
+	res.end('API response')
 })
 app.post('/api', (req,res)=>{
-	res.end('hello')
+	res.end('API response')
 })
 app.get('/api/delay', (req,res)=>{
 	setTimeout(()=>{
@@ -28,7 +28,7 @@ app.get('/api/delay', (req,res)=>{
 })
 let fatalcount =0
 app.get('/api/fatal', (req,res)=>{
-	if(fatalcount%5!==0)
+	if(fatalcount%3!==0)
 		res.status(500);
 	fatalcount++;
 	res.end('fatal')

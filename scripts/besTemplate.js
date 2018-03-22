@@ -24,6 +24,10 @@ compo_options = {
         url: {
             type: String
         },
+        response_type: {
+            type: String,
+            default: ""
+        },
         method: {
             type: String,
             required: false,
@@ -56,6 +60,18 @@ compo_options = {
         },
         bes_ajax : {
             type:Object
+        },
+        fetch_options:{
+            type:Object,
+            default: function(){
+                return {}
+            }
+        },
+        options:{
+            type: Object,
+            default:function(){
+                return {}
+            }
         }
     },
     data: function() {
@@ -71,19 +87,21 @@ compo_options = {
                 if (!this.validation)
                     return;
                 this.status = 'pending'
-                //use besAjax Class
+                //1.use besAjax Class (fetch)
                 if(this.bes_ajax){
                     let com = this;
-                    this.$emit('send', this.bes_ajax['send']())
-                    this.bes_ajax['send']().then(function(res){
+                    let promise = this.bes_ajax['extend'](this.fetch_options, this.options).send().then(function(res){
                         com.status = 'success'
                         com.$emit('input', res)
+                        return Promise.resolve(res)
                     }).catch(function(e){
                         com.status = 'fail'
+                        return Promise.reject(e)
                     })
+                    this.$emit('send', promise)
                     return;
                 }
-                //use normal xhr
+                //2.use normal xhr
                 var xhr = new XMLHttpRequest();
                 var post_body = '';
                 xhr.open(this.method, this.url);
@@ -101,6 +119,7 @@ compo_options = {
                         post_body += i + '=' + this.body[i]
                     }
                 }
+                xhr.responseType = this.response_type;
                 xhr.send(post_body)
                 var com = this;
                 xhr.onreadystatechange = function() {
@@ -110,7 +129,7 @@ compo_options = {
                         com.$emit('end', this.responseText)
                     } else if (this.readyState === 4) {
                         com.status = 'fail'
-                        com.$emit('error', this.status)
+                        com.$emit('end', this.status)
                     }
                 }
             }
