@@ -7,9 +7,6 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <!-- bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
     <script src="scripts/ajaxHandler.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
     <!-- besTemplate -->
@@ -17,120 +14,118 @@
     <link rel="stylesheet" type="text/css" href="css/besTemplate.css">
     <!-- customer script style -->
     <link rel="stylesheet" type="text/css" href="demo.css">
+    <style type="text/css">
+    .flex {
+        align-items: flex-start;
+        display: flex;
+    }
+
+    .flex-col {
+        margin: 20px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .contain-box {}
+
+    .box {
+        width: 150px;
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid black;
+    }
+    </style>
 </head>
 
 <body>
     <div id="app">
-        result: {{result}}
-        <ajax-btn class="btn btn-primary" text="hello" :bes_ajax="besAjax" v-model="result" v-on:send="reqHandeler" :fetch_options="{path:'/api/fatal',headers:{costom:'myheader'}}"></ajax-btn>
-        <ajax-btn class="btn btn-primary" text="VIP" text_success="VIP" :bes_ajax="quickAjax" v-model="result" v-on:send="reqHandeler" :fetch_options="{path:'/api'}" :options="{name:'VIP insert'}"></ajax-btn>
-        <br>
-        <button class="btn btn-info" @click="multiRequest">multiRequest</button>
-        <div>
-        	<h4>bad requests count (imitate slow background requests): {{count}}</h4>
-        	<h2>results</h2>
-        	<div v-for="r in results">{{r}}</div>
+        <h3>BesAjaxRequest</h3>
+        <div class="flex">
+            <ajax-btn class="btn btn-primary flex-col" text="delay,primary 0" :bes_ajax="delayRequest"></ajax-btn>
+            <ajax-btn class="btn btn-primary flex-col" text="delay post,primary 0" :bes_ajax="postRequest"></ajax-btn>
+            <ajax-btn class="btn btn-primary flex-col" text="instant,primary 1" :bes_ajax="instantRequest"></ajax-btn>
+            <ajax-btn class="btn btn-primary flex-col" text="instant2,primary 5" :bes_ajax="instantRequest2"></ajax-btn>
+            <button class="btn btn-primary flex-col" onclick="sendBadRequest()">send 10 badRequest</button>
         </div>
+        <div class="flex">
+            <div class="contain-box flex-col" style="width: 150px;">
+                <h4>exePool</h4>
+                <div class="box" style="background-color: lightgreen;" v-for="t in exePool">{{t.options.name}}</div>
+            </div>
+            <div class="contain-box flex-col" style="width: 150px;">
+                <h4>waitingPool</h4>
+                <div class="box" style="background-color: lightblue;" v-for="t in waitingPool">{{t.options.name}}</div>
+            </div>
+            <div class="contain-box flex-col">
+                <h4>results:</h4>
+                <div v-for="r in results">{{r}}</div>
+            </div>
+        </div>
+        <!--  <ajax-btn class="btn btn-primary" text="hello" :bes_ajax="besAjax" v-model="result" v-on:send="reqHandeler" :fetch_options="{path:'/api/fatal',headers:{costom:'myheader'}}"></ajax-btn>
+        <ajax-btn class="btn btn-primary" text="VIP" text_success="VIP" :bes_ajax="quickAjax" v-model="result" v-on:send="reqHandeler" :fetch_options="{path:'/api'}" :options="{name:'VIP insert'}"></ajax-btn> -->
     </div>
     <script type="text/javascript">
-    var besAjax = BesAjaxRequest()
-    besAjax.log = false;
+    const besAjax = BesAjaxRequest()
+    besAjax.log = true;
     besAjax.poolSize = 5;
-    besAjax.errorHandler = function(e) {
-        console.log(`[errorHandler] code: ${e}`)
-    }
-    var defaultReq = besAjax.createRequest({
-        host: 'http://127.0.0.1:3000',
-        path: '/api/delay',
-        method: 'get',
-        body: {}
+    const defaultRequest = besAjax.createRequest({
+        host: 'http://127.0.0.1:3000'
     }, {
         responseType: 'text',
-        retry: 7,
-        sleep: 1000,
-        name: 'defaultReq',
-        primary:2
+        primary: 5
     })
-    var quickReq = defaultReq.extend({
-    	path:'/'
-    },{
-    	primary:0,
-    	name:'quickReq'
-    })
-    var badReq = defaultReq.extend({
-    	path:'/api/fatal'
-    },{
-    	primary:5,
-    	name:'badReq'
-    })
-    var postReq = defaultReq.extend({
-        method: 'get',
-        headers: { 'Content-Type': 'application/json', 'xxx': 'append' },
-        //body: JSON.stringify({ name: 'tim' })
+
+    const badRequest = defaultRequest.extend({
+        path: '/api/fatal'
     }, {
-        primary:3,
-        name: 'postReq'
+        retry: 5,
+        sleep: 500
     })
-    // for(let i=0;i<25;i++){
-    // 	badReq.extend({query:`?${i}`},{name:`BadReq${i}`}).send().then((res)=>{
-    // 		app.results.push(`Bad request ${i} success`)
-    // 		app.count = app.count+1;
-    // 		return;
-    // 	}).catch((e)=>{
-    // 		app.results.push(`Bad request ${i} fail`)
-    // 		app.count = app.count+1;
-    // 	})
-    // }
-    // for (let i = 0; i < 10; i++) {
-    //                 defaultReq.extend({ path: '/?date=' + i }).send().then((res) => {
-    //                     console.log(`**bg request ${i+1} done: ${res}`)
+    const delayRequest = defaultRequest.extend({
+        path: '/api/delay'
+    }, {
+        name: 'delayRequest',
+        primary: 0
+    })
+    const instantRequest = defaultRequest.extend({
+        path: '/api'
+    }, {
+        name: 'instantRequest',
+        primary: 1
+    })
 
-    //                 }).catch(function(e) {
-    //                     console.log(`**bg request ${i+1} fail: ${e}`)
-    //                 })
-    //             }
-    //             postReq.extend({path:'/api/delay?date='+date}).send().then(function(res) {
-    //                 console.log('**VIP request done:' + res)
-    //             })
-
-    var app = new Vue({
+    const app = new Vue({
         el: '#app',
         data: {
-            result: '',
-            besAjax: defaultReq,
-            quickAjax : quickReq,
-            results:[],
-            count:0
-        },
-        methods: {
-            reqHandeler: function(promise) {
-                var me = this;
-                promise.then(function(res) {
-                    console.log('handle response:' + res)
-                    me.results.push(res)
-                })
-            },
-            multiRequest: function() {
-            	var me= this;
-                for (let i = 0; i < 10; i++) {
-                	quickReq.send().then((res)=>{
-                		me.results.push(res)
-                	})
-                    defaultReq.extend({ path: '/api/delay?date=' + i }).send().then((res) => {
-                        //console.log(`**bg request ${i+1} done: ${res}`)
-                        me.results.push(res)
-                    }).catch(function(e) {
-                        //console.log(`**bg request ${i+1} fail: ${e}`)
-                        me.results.push(res)
-                    })
-                    postReq.extend({query:'?'+i},{name:'postReq'+i}).send().then(function(res) {
-                    	//console.log('**VIP request done:' + res)
-                    	me.results.push('postReq'+i)
-                	})
-                }
-            }
+            results: [],
+            exePool: [],
+            waitingPool: [],
+            delayRequest: delayRequest,
+            postRequest: delayRequest.extend({ method: 'post', body: JSON.stringify({ "name": "postRequest" }), headers: { 'Content-Type': 'application/json' } }, { name: 'postRequest', primary: 0 }),
+            instantRequest: instantRequest,
+            instantRequest2: instantRequest.extend({}, { name: 'instantRequest2', primary: 5 })
         }
     })
+    besAjax.successHandler = function(res, name) {
+        app.results.unshift(`[${name} done]. response: ${res}`)
+    }
+    besAjax.errorHandler = function(e, name) {
+        app.results.unshift(`[${name} fail]. error: ${e}`)
+    }
+    besAjax.taskPool.on('pool', function() {
+        app.exePool = besAjax.taskPool.exePool;
+        app.waitingPool = besAjax.taskPool.waitingPool
+    })
+
+    function sendBadRequest() {
+        for (let i = 0; i < 15; i++) {
+            badRequest.extend({ query: `?index=${i}` }, { name: `badRequest${i}` }).send()
+                .then(function(res) {})
+                .catch(function(e) {})
+        }
+    }
+    sendBadRequest();
     </script>
 </body>
 

@@ -28,11 +28,10 @@ function BesAjaxRequest() {
         this.exePool = [];
         this.waitingPool = [];
         this.idList = {};
+
         let me = this;
-        this.on('clean', function() {
-            me.checkWaiting()
-        })
-        this.on('update', function() {
+        this.on('update', function() { //update exe timer
+            log('TaskPool', 'Timer update')
             if (me.timer) {
                 clearTimeout(me.timer)
             }
@@ -45,15 +44,17 @@ function BesAjaxRequest() {
     TaskPool.prototype.constructor = TaskPool;
     TaskPool.prototype.execute = function() {
         this.exePool.forEach(function(task) {
-            if (!task.start) {
+            let status = task.status
+            task.stop = false;
+            if (status==='init') {
                 task.run();
-            } else if (task.start && task.stop) {
-                task.stop = false;
+            } else if(status==='pause'){
                 task.run();
+            } else if(status==='ready') {
+                task.resolve()
             }
         })
-        console.log(this.exePool.length,this.waitingPool.length)
-        log('TaskPool', 'execute all task in exePool');
+        log('TaskPool', `Execute exePool`);
     }
     TaskPool.prototype.getId = function(num) {
         const char = 'qwertasdfgzxcvb1234567890';
@@ -75,81 +76,49 @@ function BesAjaxRequest() {
     TaskPool.prototype.releaseId = function(id) {
         delete this.idList[id]
     }
-    // TaskPool.prototype.addTask = function(task) {
-    // 	//---name
-    //     // console.log(this.exePool.length, maxSize)
-    //     // let names = []
-    //     // this.exePool.forEach(function(t) {
-    //     //     names.push(t.options.name)
-    //     // })
-    //     // console.log(names)
-    //     //----
-    //     console.log('----addTask----')
-    //     let maxSize = np.poolSize;
-    //     let me = this;
-    //     task.id = this.getUniqueId(5);
-    //     //檢查pool大小，加入pool,pool已滿 查看是否primary task 
-    //     if(this.exePool.length< maxSize){
-    //     	this.exePool.push(task)
-    //     	this.emit('update')
-    //     } else{
-    //     	let lessIndex=this.exePool.findIndex(function(t){
-    //     		return t.primary>task.primary
-    //     	})
-    //     	if(lessIndex>=0){
-    //     		console.log('代替'+lessIndex)
-    //     		let less = this.exePool[lessIndex];
-    //     		less.pause()
-    //     		this.waitingPool.push(less);
-    //     		this.exePool.splice(lessIndex,1)
-    //     	}
-    //     }
-    //     // if (this.exePool.length >= maxSize) {
-    //     //     log('TaskPool', 'exePool is full')
-    //     //     let less = this.exePool.find(function(t, index) {
-    //     //         if (t.primary > task.primary) { //如果有less primary, 移動到waiting pool
-    //     //             let task = me.exePool[index];
-    //     //             log('TaskPool', `move less primary task "${task.options.name}" from exePool to waitingPool and pause it.`)
-    //     //             t.pause();
-    //     //             me.exePool.splice(index, 1);
-    //     //             me.waitingPool.push(t)
-    //     //         } 
-    //     //         return t.primary > task.primary
-    //     //     })
-    //     // } else if (this.exePool.length < maxSize) {
-    //     //     log('TaskPool', `put task "${task.options.name}" to exePool`)
-    //     //     console.log('TaskPool', `put task "${task.options.name}" to exePool`)
-    //     //     console.log(this.exePool.push(task))
-    //     //     //---name
-    //     //     // console.log(this.exePool.length, maxSize)
-    //     //     // let names = []
-    //     //     // this.exePool.forEach(function(t) {
-    //     //     //     names.push(t.options.name)
-    //     //     // })
-    //     //     // console.log(names)
-    //     //     //----
-    //     //     this.emit('update')
-    //     // } 
-    //     // else {
-    //     //     log('TaskPool', `put task "${task.options.name}" to waitingPool`)
-    //     //     this.waitingPool.push(task)
-    //     // }
-    // }
-    
-    TaskPool.prototype.clean = function(id) {
+    TaskPool.prototype.addTask = function(task) {
+        let maxSize = np.poolSize;
+        let me = this;
+        if (task.id === null) {
+            let id = this.getUniqueId(5);
+            task.id = id
+        }
+        //檢查pool大小，加入pool,pool已滿 查看是否primary task 
+        if (this.exePool.length < maxSize) {
+            this.exePool.push(task)
+            log('TaskPool', `put ${task.options.name} to exePool`)
+            this.emit('update')
+            this.emit('pool')
+        } else {
+            this.exePool.sort(function(a, b) {
+                return b.primary - a.primary;
+            })
+            if (this.exePool[0].primary > task.primary) {
+                let lessPrimaryTask = this.exePool.shift();
+                lessPrimaryTask.stop = true
+                this.waitingPool.push(lessPrimaryTask);
+                this.exePool.push(task)
+                log('TaskPool', `put ${lessPrimaryTask.options.name} from exePool to waitingPool`)
+                log('TaskPool', `put ${task.options.name} to exePool`)
+                this.emit('update')
+                this.emit('pool')
+            } else {
+                log('TaskPool', `put ${task.options.name} to waitingPool`)
+                this.waitingPool.push(task)
+                this.emit('pool')
+            }
+        }
+    }
+    TaskPool.prototype.clean = function(id,name) {
         let index = this.exePool.findIndex(function(t) {
             return t.id === id
         })
+        if (index < 0)
+           console.log('NOT FOUND xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx '+ name)
         this.exePool.splice(index, 1)
+        this.emit('pool')
         this.releaseId(id)
-        this.emit('clean')
-    }
-    TaskPool.prototype.transfer = function(index) {
-        let task = this.exePool[index];
-        log('TaskPool', `move less primary task "${task.options.name}" from exePool to waitingPool and pause it.`)
-        task.pause();
-        this.exePool.splice(index, 1);
-        this.waitingPool.push(task)
+        this.checkWaiting()
     }
     TaskPool.prototype.checkWaiting = function() {
         log('TaskPool', 'checkWaiting')
@@ -158,8 +127,10 @@ function BesAjaxRequest() {
                 return a.primary - b.primary;
             })
             let task = this.waitingPool.shift()
-            this.addTask(task)
-            log('TaskPool', `move task "${task.options.name}" from waitingPool to exePool`)
+            log('TaskPool', `put ${task.options.name} from waitingPool to exePool`)
+            this.exePool.push(task)
+            this.emit('update')
+            this.emit('pool')
         } else {
             log('TaskPool', 'waitingPool is empty')
         }
@@ -208,15 +179,18 @@ function BesAjaxRequest() {
         np.taskPool.addTask(task)
         return new Promise(function(resolve, reject) {
             task.on('done', function(status, res) {
+                task.status = 'done'
                 if (status === 'success') {
                     //if 共同成功回呼...
+                    np.successHandler(res, task.options.name)
                     resolve(res)
                 } else if (status === 'fail') {
                     //共同失敗處理
-                    np.errorHandler(res)
+                    np.errorHandler(res, task.options.name)
                     reject(res)
                 }
-                np.taskPool.clean(task.id)
+                log('Task', `task ${task.options.name} done.`)
+                np.taskPool.clean(task.id,task.options.name)
             })
         })
     }
@@ -228,24 +202,20 @@ function BesAjaxRequest() {
         this.primary = (options.primary) ? options.primary : 1;
         this.type = options.responseType;
         this.count = 0;
+        this.status = 'init';
         this.stop = false;
-        this.start = false;
-        this.id;
+        this.id = null;
         this.retry = (options.retry) ? options.retry : 1;
         this.sleep = (options.sleep) ? options.sleep : 100;
     }
     Task.prototype = Object.create(EventListener.prototype);
     Task.prototype.constructor = Task;
-    Task.prototype.pause = function() {
-        this.stop = true;
+    Task.prototype.resolve = function(){
+        this.presolve(this.response)
     }
     Task.prototype.run = function() {
-        console.log(`${this.options.name}: run`)
         const me = this;
-        if (!this.start)
-            this.start = true;
-        if (!this.stop)
-            this.stop = false;
+        this.status = 'proccess'
         new Promise(function(resolve, reject) {
             let path = (me.fetchoptions.path) ? me.fetchoptions.path : '/';
             let query = (me.fetchoptions.query) ? me.fetchoptions.query : '?';
@@ -257,32 +227,49 @@ function BesAjaxRequest() {
                     }
                     log('Task', `task "${me.options.name}" success with status ${response.status}`)
                     response = (me.type) ? response[me.type]() : response;
-                    resolve(response)
+                    response = (response == undefined) ? true : response;
+                    if(me.stop){
+                        log('Task',`${me.options.name} ready to be resolve in waitingPool.`)
+                        me.status = 'ready';
+                        me.presolve = resolve;
+                        me.response = response;
+                    }else{
+                        resolve(response);
+                    }
                 }).catch(function(e) {
                     if (++me.count < me.retry) {
                         log('Task', `task "${me.options.name}" will retry with statusText : ${e}, has retried ${me.count} times`)
                         setTimeout(function() {
-                            if (!me.stop)
+                            if (!me.stop) {
                                 me.run();
-                            else
+                            } else {
+                                me.status = 'pause'
                                 log('Task', `task "${me.options.name}" stop retry due to pause.`)
+                            }
                         }, me.sleep)
                     } else {
-                        reject(e)
-                        log('Task', `task "${me.options.name}" fail with statusText ${e}`)
-                        return;
+                        if(me.stop){
+                            log('Task',`${me.options.name} ready to be reject in waitingPool.`)
+                            me.status = 'ready';
+                            me.presolve = reject;
+                            me.response = e;
+                        } else{
+                            log('Task', `task "${me.options.name}" fail with statusText ${e}`)
+                            reject(e)
+                        }
                     }
                 })
-        }).then(function(response) {
+        }).then(function(response){
             me.emit('done', 'success', response)
-        }).catch(function(e) {
+        }).catch(function(e){
             me.emit('done', 'fail', e)
-        });
+        })
     }
     np.log = false;
     np.poolSize = 5;
     np.taskPool = new TaskPool();
     np.errorHandler = function(e) {};
+    np.successHandler = function(res){};
     np.createRequest = function(fetchopt, opt) {
         return new BesRequest(fetchopt, opt);
     }

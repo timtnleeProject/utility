@@ -26,9 +26,14 @@ app.get('/api/delay', (req,res)=>{
 		res.end(`現在時間 : ${new Date()}`)
 	},1000)
 })
+app.get('/api/delay2', (req,res)=>{
+	setTimeout(()=>{
+		res.end(`現在時間 : ${new Date()}`)
+	},3000)
+})
 let fatalcount =0
 app.get('/api/fatal', (req,res)=>{
-	if(fatalcount%3!==0)
+	if(fatalcount%5!==0)
 		res.status(500);
 	fatalcount++;
 	res.end('fatal')
