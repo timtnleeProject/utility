@@ -10,13 +10,13 @@
 	var besAjax = BesAjaxRequest();
 	var defaultRequest = besAjax.createRequest({
 		host: 'http://127.0.0.1:3000',
-        path: '/api'
+        	path: '/api'
 	},{
 		responseType: 'text',
-        retry: 7,
-        sleep: 1000,
+        	retry: 7,
+        	sleep: 1000,
 		VIP: false,
-        name: 'defaultReq'
+        	name: 'defaultReq'
 	});
 	defaultRequest.send().then((res)=>{
 		//handle response
@@ -36,7 +36,7 @@
 	postRequest.send();
 
 # Document
-##BesAjaxRequest
+## BesAjaxRequest
 ### BesAjaxRequest()
 - create a new BesAjaxObject.
 - **type** `<Function>`
