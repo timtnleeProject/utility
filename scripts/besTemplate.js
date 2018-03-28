@@ -139,7 +139,7 @@ let ajaxBtn = Vue.extend(compo_options);
 compo_create(compo_name, ajaxBtn.extend({
     template: '<div class="ajax-btn" :class="\'ajax-btn-\'+status" v-on:click="send">\
     <div v-if="status===\'ready\'">{{text}}</div>\
-    <div v-else-if="status===\'pending\'"><div class="loading"></div></div>\
+    <div v-else-if="status===\'pending\'" class="pending"><div class="loading"></div></div>\
     <div v-else-if="status===\'success\'">{{(text_success)?text_success:text}}</div>\
     <div v-else-if="status===\'fail\'">{{(text_fail)?text_fail:text}}</div>\
     </div>'

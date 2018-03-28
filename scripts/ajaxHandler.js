@@ -46,11 +46,11 @@ function BesAjaxRequest() {
         this.exePool.forEach(function(task) {
             let status = task.status
             task.stop = false;
-            if (status==='init') {
+            if (status === 'init') {
                 task.run();
-            } else if(status==='pause'){
+            } else if (status === 'pause') {
                 task.run();
-            } else if(status==='ready') {
+            } else if (status === 'ready') {
                 task.resolve()
             }
         })
@@ -109,12 +109,12 @@ function BesAjaxRequest() {
             }
         }
     }
-    TaskPool.prototype.clean = function(id,name) {
+    TaskPool.prototype.clean = function(id, name) {
         let index = this.exePool.findIndex(function(t) {
             return t.id === id
         })
         if (index < 0)
-           console.log('NOT FOUND xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx '+ name)
+            console.log('NOT FOUND xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ' + name)
         this.exePool.splice(index, 1)
         this.emit('pool')
         this.releaseId(id)
@@ -128,9 +128,11 @@ function BesAjaxRequest() {
             })
             let task = this.waitingPool.shift()
             log('TaskPool', `put ${task.options.name} from waitingPool to exePool`)
-            this.exePool.push(task)
-            this.emit('update')
-            this.emit('pool')
+            if (this.exePool.length < np.poolSize) {
+                this.exePool.push(task)
+                this.emit('update')
+                this.emit('pool')
+            }
         } else {
             log('TaskPool', 'waitingPool is empty')
         }
@@ -190,7 +192,14 @@ function BesAjaxRequest() {
                     reject(res)
                 }
                 log('Task', `task ${task.options.name} done.`)
-                np.taskPool.clean(task.id,task.options.name)
+                if (task.atWaitingPool) {
+                    let index = np.taskPool.waitingPool.findIndex(function(t) {
+                        return t.id === task.id;
+                    })
+                    np.taskPool.waitingPool.splice(index, 1)
+                } else {
+                    np.taskPool.clean(task.id, task.options.name)
+                }
             })
         })
     }
@@ -205,12 +214,12 @@ function BesAjaxRequest() {
         this.status = 'init';
         this.stop = false;
         this.id = null;
-        this.retry = (options.retry) ? options.retry : 1;
+        this.retry = (options.retry) ? options.retry : 0;
         this.sleep = (options.sleep) ? options.sleep : 100;
     }
     Task.prototype = Object.create(EventListener.prototype);
     Task.prototype.constructor = Task;
-    Task.prototype.resolve = function(){
+    Task.prototype.resolve = function() {
         this.presolve(this.response)
     }
     Task.prototype.run = function() {
@@ -228,17 +237,15 @@ function BesAjaxRequest() {
                     log('Task', `task "${me.options.name}" success with status ${response.status}`)
                     response = (me.type) ? response[me.type]() : response;
                     response = (response == undefined) ? true : response;
-                    if(me.stop){
-                        log('Task',`${me.options.name} ready to be resolve in waitingPool.`)
-                        me.status = 'ready';
-                        me.presolve = resolve;
-                        me.response = response;
-                    }else{
+                    if (me.stop) {
+                        log('Task', `${me.options.name} ready to be resolve in waitingPool.`)
+                        me.resolveLater(resolve, response)
+                    } else {
                         resolve(response);
                     }
                 }).catch(function(e) {
-                    if (++me.count < me.retry) {
-                        log('Task', `task "${me.options.name}" will retry with statusText : ${e}, has retried ${me.count} times`)
+                    if (++me.count <= me.retry) {
+                        log('Task', `task "${me.options.name}" will retry with statusText : ${e}, has tried ${me.count} times`)
                         setTimeout(function() {
                             if (!me.stop) {
                                 me.run();
@@ -248,28 +255,37 @@ function BesAjaxRequest() {
                             }
                         }, me.sleep)
                     } else {
-                        if(me.stop){
-                            log('Task',`${me.options.name} ready to be reject in waitingPool.`)
-                            me.status = 'ready';
-                            me.presolve = reject;
-                            me.response = e;
-                        } else{
+                        if (me.stop) {
+                            log('Task', `${me.options.name} ready to be reject in waitingPool.`)
+                            me.resolveLater(reject, e)
+                        } else {
                             log('Task', `task "${me.options.name}" fail with statusText ${e}`)
                             reject(e)
                         }
                     }
                 })
-        }).then(function(response){
+        }).then(function(response) {
             me.emit('done', 'success', response)
-        }).catch(function(e){
+        }).catch(function(e) {
             me.emit('done', 'fail', e)
         })
     }
+    Task.prototype.resolveLater = function(resolve, response) {
+        if (np.resolveFirst) {
+            this.atWaitingPool = true;
+            resolve(response)
+        } else {
+            this.status = 'ready';
+            this.presolve = resolve;
+            this.response = response;
+        }
+    }
     np.log = false;
     np.poolSize = 5;
+    np.resolveFirst = false;
     np.taskPool = new TaskPool();
     np.errorHandler = function(e) {};
-    np.successHandler = function(res){};
+    np.successHandler = function(res) {};
     np.createRequest = function(fetchopt, opt) {
         return new BesRequest(fetchopt, opt);
     }

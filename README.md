@@ -2,21 +2,21 @@
 **Ajax handler using fetch API.**
 
 * Create default request.
-* Extend requests based on default request.
-* Retry when request fail.
-* VIP requests and background requests.
+* Extend requests based on default/other requests.
+* Retry when requests fail.
+* Sort requests by their priorities.
 
 ### How to use ###
 	var besAjax = BesAjaxRequest();
 	var defaultRequest = besAjax.createRequest({
 		host: 'http://127.0.0.1:3000',
-        	path: '/api'
+        path: '/api'
 	},{
 		responseType: 'text',
-        	retry: 7,
-        	sleep: 1000,
+        retry: 7,
+        sleep: 1000,
 		VIP: false,
-        	name: 'defaultReq'
+        name: 'defaultReq'
 	});
 	defaultRequest.send().then((res)=>{
 		//handle response
@@ -35,13 +35,50 @@
     });
 	postRequest.send();
 
+### Demo ###
+* Clone the repo.
+* run
+	
+    	$npm install
+    	$npm start 
+
+* Visit  `localhost:3000/fetch.html`
+
+### Concept ###
+
+Below are the steps showing how it works.
+
+**1.Create BesAjaxObject**
+
+Once you create a [`BesAjaxObject`](#BesAjaxObject), you can create and extand requests from it, and `BesAjaxObject` will handle all requests. 
+
+**2.Pool**
+
+There's a `exePool` and `waitingPool` in `BesAjaxObject`. When you call `BesRequestObject.send()`, it will return a `Promise`, and create a new task and put it into `exePool`, while `exePool`'s length is over `BesAjaxObject.poolSize`, tasks will be put in `waitingPool`, or replace the less primary task in `exePool`. 
+
+Notice that although the less primary task is moved to `waitingPool`, if the task is running ( request is already send ) , the request will still going and will not be aborted, since the [Fetch abort](https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort) is a experimental technology and not compatitive with all browsers.
+
+`BesAjaxObject` will run all tasks ( send requests, retry requests ) in `exePool` later in callback using `setTimeout`.
+
+**3.Resolve**
+
+When response return:
+
+if task is in the `exePool`, the `Promise` which return by `BesRequestObject.send()` will be resolve. 
+
+If task is in the `waitingPool`, controller will check if `BesAjaxObject.`
+
+
+**4.Compacity**
+
+For browser compacity, include [fetch polyfill](https://github.com/github/fetch).
+  
+
 # Document
-## BesAjaxRequest
 ### BesAjaxRequest()
 - create a new BesAjaxObject.
 - **type** `<Function>`
-- **return** `BesAjaxObject`
-## BesAjaxObject
+- **return** [`BesAjaxObject`](#BesAjaxObject)  
 ### BesAjaxObject
 - This object can create request object, handle execute pool and waiting pool.
 - **type** `<Object>`
@@ -52,10 +89,10 @@
 - **parameters**
 	- `fetchOptions`
 	- `options` 
-- **return** `BesRequestObject`
+- **return** [`BesRequestObject`](#BesRequestObject)
 
 ### BesAjaxObject.log
-- Turn log on/off
+- Turn logs on/off
 - **type** `<Boolean>`
 - **default** `false`
 - **value**
@@ -67,20 +104,31 @@
 - **type** `<Integer>`
 - **default** `5`
 
-### BesAjaxObject.errorHandler(`e`)
-- Global error handle function for all requests in BesAjaxObject. To use it, just overwrite it.
+### BesAjaxObject.resolveFirst
+- Set to `true`: when requests in `waitingPool` get reqsponse, it will be resolve immediately, to `false` :  resolve when it moving back to `exePool`.
+- **type** `<Boolean>`
+- **default** `false` 
+
+### BesAjaxObject.successHandler(`responseObject`)
+- Global response success handler function for all requests in BesAjaxObject. To use it, just overwrite it.
 - **type** `<Function>`
-## BesRequestObject
+### BesAjaxObject.errorHandler(`e`)
+- Global error handler function for all requests in BesAjaxObject. To use it, just overwrite it.
+- **type** `<Function>`
+
+###BesAjaxObject.on('pool', `Function`)
+- Fired when exePool/waitingPool push/remove tasks.
+
 ### BesRequestObject
 - Request object
 - **type** `<Object>`
 
 ### BesRequestObject.extend(`fetchOptions`,`options`)
 - Create another `BesRequestObject` extended `fetchOptions`, `options`
-- **!** Same properties in `fetchOptions`, `options` will overwrite the original `fetchOptions`, `options` in `BesRequestObject`. But only `fetchOptions.headers` will use `Headers.append()`, see [Fetch Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers/append).
+-Properties in `fetchOptions`, `options` will overwrite the same properties in original `fetchOptions`, `options` in `BesRequestObject`. But only `fetchOptions.headers` will use `Headers.append()`, see [Fetch Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers/append).
 - **type** `<Function>`
 - **parameters**
-	- `fetchOptions`
+	- [`fetchOptions`](#fetchOptions)
 	- `options`
 - **return** `BesRequestObject`
 
@@ -89,25 +137,43 @@
 - **type** `<Function>`
 - **return** `Promise`
 ### fetchOptions
-
-	 
-
-- **Bold** (`Ctrl+B`) and *Italic* (`Ctrl+I`)
-- Quotes (`Ctrl+Q`)
-- Code blocks (`Ctrl+K`)
-- Headings 1, 2, 3 (`Ctrl+1`, `Ctrl+2`, `Ctrl+3`)
-- Lists (`Ctrl+U` and `Ctrl+Shift+O`)
-
-### See your changes instantly with LivePreview ###
-
-Don't guess if your [hyperlink syntax](http://markdownpad.com) is correct; LivePreview will show you exactly what your document looks like every time you press a key.
-
-### Make it your own ###
-
-Fonts, color schemes, layouts and stylesheets are all 100% customizable so you can turn MarkdownPad into your perfect editor.
-
-### A robust editor for advanced Markdown users ###
-
-MarkdownPad supports multiple Markdown processing engines, including standard Markdown, Markdown Extra (with Table support) and GitHub Flavored Markdown.
-
-With a tabbed document interface, PDF export, a built-in image uploader, session management, spell check, auto-save, syntax highlighting and a built-in CSS management interface, there's no limit to what you can do with MarkdownPad.
+- **type** `<Object>`
+- Same as [fetch API's init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
+- additional/different options:
+	- headers
+		- You don't need to pass [Fetch Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers/append), just pass Object or JSON format.
+		- **type**:`<Object>`/`<JSON>`
+	- url
+		- request's url. *notice: use **url**, or **host**+**path***
+		- **type** `<String>`
+	- host 
+		- request's host. _ex: 'http://example.com'_
+		- **type** `<String>`
+	- path 
+		- request's path. _ex: '/api'_
+		- **type** `<String>`
+	- query 
+		- request's query string. _ex: '?user="xxx"'_
+		- **type** `<String>`   
+### options
+- BesRequestObject options
+- **type** `<Object>`
+- **options**
+	- primary
+		- Priority of requests. *0 is the most primary task*.
+		- **type** `<Number>`
+		- **default** `1`
+	- retry
+		- maximum retry time when request fail.
+		- **type** `<Integer>`
+		- **default** `0` 
+	- sleep
+		- Wait milliseconds before every retry.
+		- **type** `<Integer>`
+		- **default** `100`
+	- name
+		- request's name show in logs.
+		- **type** `<String>`
+		- default `undefined`
+	- responseType
+		- preserve response with 

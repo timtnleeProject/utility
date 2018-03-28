@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Document</title>
+    <title>Fetch demo</title>
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <!-- bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
@@ -15,22 +15,28 @@
     <!-- customer script style -->
     <link rel="stylesheet" type="text/css" href="demo.css">
     <style type="text/css">
+    #app {
+        padding: 10px;
+    }
+
     .flex {
         align-items: flex-start;
         display: flex;
     }
 
     .flex-col {
-        margin: 20px;
+        margin-right: 20px;
         display: flex;
         justify-content: center;
         flex-direction: column;
     }
 
-    .contain-box {}
+    .pool {
+        width: 150px;
+        text-align: center;
+    }
 
     .box {
-        width: 150px;
         width: 100%;
         box-sizing: border-box;
         border: 1px solid black;
@@ -42,18 +48,37 @@
     <div id="app">
         <h3>BesAjaxRequest</h3>
         <div class="flex">
-            <ajax-btn class="btn btn-primary flex-col" text="delay,primary 0" :bes_ajax="delayRequest"></ajax-btn>
-            <ajax-btn class="btn btn-primary flex-col" text="delay post,primary 0" :bes_ajax="postRequest"></ajax-btn>
-            <ajax-btn class="btn btn-primary flex-col" text="instant,primary 1" :bes_ajax="instantRequest"></ajax-btn>
-            <ajax-btn class="btn btn-primary flex-col" text="instant2,primary 5" :bes_ajax="instantRequest2"></ajax-btn>
-            <button class="btn btn-primary flex-col" onclick="sendBadRequest()">send 10 badRequest</button>
+            <div class="flex-col">
+                <label>delay,primary 0</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="delayRequest"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>delay post,primary 0</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="postRequest"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>instant,primary 1</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>instant2,primary 5</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest2"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>send 10 badRequest</label>
+                <button class="btn btn-primary" onclick="sendBadRequest()">send</button>
+            </div>
         </div>
         <div class="flex">
-            <div class="contain-box flex-col" style="width: 150px;">
-                <h4>exePool</h4>
-                <div class="box" style="background-color: lightgreen;" v-for="t in exePool">{{t.options.name}}</div>
+            <div class="contain-box flex-col pool">
+                <h4>pool size</h4>
+                <input type="text" v-model="controll.poolSize">
             </div>
-            <div class="contain-box flex-col" style="width: 150px;">
+            <div class="contain-box flex-col pool">
+                <h4>exePool</h4>
+                <div class="box" style="background-color: lime;" v-for="t in exePool">{{t.options.name}}</div>
+            </div>
+            <div class="contain-box flex-col pool">
                 <h4>waitingPool</h4>
                 <div class="box" style="background-color: lightblue;" v-for="t in waitingPool">{{t.options.name}}</div>
             </div>
@@ -68,6 +93,7 @@
     <script type="text/javascript">
     const besAjax = BesAjaxRequest()
     besAjax.log = true;
+    besAjax.resolveFirst = false;
     besAjax.poolSize = 5;
     const defaultRequest = besAjax.createRequest({
         host: 'http://127.0.0.1:3000'
@@ -92,7 +118,8 @@
         path: '/api'
     }, {
         name: 'instantRequest',
-        primary: 1
+        primary: 1,
+        responseType: 'json'
     })
 
     const app = new Vue({
@@ -101,17 +128,29 @@
             results: [],
             exePool: [],
             waitingPool: [],
+            controll : besAjax,
             delayRequest: delayRequest,
-            postRequest: delayRequest.extend({ method: 'post', body: JSON.stringify({ "name": "postRequest" }), headers: { 'Content-Type': 'application/json' } }, { name: 'postRequest', primary: 0 }),
+            postRequest: delayRequest.extend({
+                method: 'post',
+                body: JSON.stringify({ "name": "postRequest" }),
+                headers: { 'Content-Type': 'application/json' }
+            }, {
+                name: 'postRequest',
+                primary: 0
+            }),
             instantRequest: instantRequest,
-            instantRequest2: instantRequest.extend({}, { name: 'instantRequest2', primary: 5 })
+            instantRequest2: instantRequest.extend({}, { name: 'instantRequest2', primary: 5, responseType: 'text' })
         }
     })
     besAjax.successHandler = function(res, name) {
         app.results.unshift(`[${name} done]. response: ${res}`)
+        if (app.results.length > 50)
+            app.results.pop()
     }
     besAjax.errorHandler = function(e, name) {
         app.results.unshift(`[${name} fail]. error: ${e}`)
+        if (app.results.length > 50)
+            app.results.pop()
     }
     besAjax.taskPool.on('pool', function() {
         app.exePool = besAjax.taskPool.exePool;
@@ -126,6 +165,15 @@
         }
     }
     sendBadRequest();
+    for(let i=0;i<5;i++){
+        delayRequest.extend({},{primary:4,name:'delayRequest5'}).send()
+    }
+    setTimeout(function(){
+        for(let i=0;i<5;i++){
+            delayRequest.extend({path:'/api/delay2',query:'?i='+i},{primary:0,name:'delayRequest0'}).send()
+        }
+    },100)
+    
     </script>
 </body>
 

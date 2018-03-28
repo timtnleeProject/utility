@@ -16,19 +16,20 @@ app.get('/', (req,res)=>{
 	res.end('<a href="demo.html">Demo</a><br><a href="fetch.html">Fetch</a>')
 })
 app.get('/api', (req,res)=>{
-	res.end('API response')
+	let json={"format":"json"}
+	res.end(JSON.stringify(json))
 })
 app.post('/api', (req,res)=>{
 	res.end('API response')
 })
 app.get('/api/delay', (req,res)=>{
 	setTimeout(()=>{
-		res.end(`現在時間 : ${new Date()}`)
+		res.end(`delay 1 s.`)
 	},1000)
 })
 app.get('/api/delay2', (req,res)=>{
 	setTimeout(()=>{
-		res.end(`現在時間 : ${new Date()}`)
+		res.end(`delay 3 s`)
 	},3000)
 })
 let fatalcount =0

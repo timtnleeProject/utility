@@ -1,3 +1,7 @@
+.ajax-btn .pending {
+  display: flex;
+  justify-content: center; }
+
 .ajax-btn .loading {
   width: 1em;
   height: 1em;
