@@ -20,3 +20,4 @@ gulp.task('prefix', () =>
 gulp.task('prefix:watch', function () {
   gulp.watch('./css/*.css', ['prefix']);//'./sass/*.sass'有變動就執行gulp task 'sass'
 });
+gulp.task('all:watch' ,['prefix:watch', 'sass:watch'])

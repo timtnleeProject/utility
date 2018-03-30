@@ -10,13 +10,14 @@
 	var besAjax = BesAjaxRequest();
 	var defaultRequest = besAjax.createRequest({
 		host: 'http://127.0.0.1:3000',
-        path: '/api'
+        path: 'api',
 	},{
 		responseType: 'text',
         retry: 7,
         sleep: 1000,
-		VIP: false,
-        name: 'defaultReq'
+		primary: 3,
+		timeout: 5000,
+        name: 'defaultReq',
 	});
 	defaultRequest.send().then((res)=>{
 		//handle response
@@ -28,10 +29,11 @@
 	var postRequest = defaultRequest.extend({
         method: 'post',
         headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
-        body: JSON.stringify({ name: 'p0855' })
+        body: JSON.stringify({ name: 'p0855' }),
     }, {
-        VIP: true,
-        name: 'postReq'
+        responseType: 'json',
+		primary: 0, 
+        name: 'postReq',
     });
 	postRequest.send();
 
@@ -46,7 +48,7 @@
 
 ### Concept ###
 
-Below are the steps showing how it works.
+Belows are the steps showing how it works.
 
 **1.Create BesAjaxObject**
 
@@ -64,9 +66,9 @@ Notice that although the less primary task is moved to `waitingPool`, if the tas
 
 When response return:
 
-if task is in the `exePool`, the `Promise` which return by `BesRequestObject.send()` will be resolve. 
+If task is in the `exePool`, the `Promise` which return by `BesRequestObject.send()` will be resolve. 
 
-If task is in the `waitingPool`, controller will check if `BesAjaxObject.`
+If task is in the `waitingPool`, controller will check if `BesAjaxObject.resolveFirst` is set to `true` , the task will be resolve immediately and remove from `waitingPool`, otherwise it will be resolve later when it moving to `exePool`.
 
 
 **4.Compacity**
@@ -164,16 +166,20 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 		- **type** `<Number>`
 		- **default** `1`
 	- retry
-		- maximum retry time when request fail.
+		- Maximum retry time when request fail.
 		- **type** `<Integer>`
 		- **default** `0` 
 	- sleep
 		- Wait milliseconds before every retry.
 		- **type** `<Integer>`
 		- **default** `100`
+	- timeout
+		- Requests will be reject after timeout (millisecond).
+		- **type** `<Integer>`
 	- name
-		- request's name show in logs.
+		- Request's ( Task's ) name show in logs.
 		- **type** `<String>`
 		- default `undefined`
 	- responseType
-		- preserve response with 
+		- preserve response with [Body Methods](https://developer.mozilla.org/en-US/docs/Web/API/Body), _'text', 'json' ,'blob'_ etc.
+		- **type** `<String>`

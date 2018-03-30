@@ -2,6 +2,9 @@ var list = [
     {
         title:'color-ticks'
     },
+    {
+        title: 'text-display'
+    },
 	{
 		title: 'ajax-button',
 		group:['ajax-btn(get)','ajax-btn(post)'],
@@ -9,6 +12,9 @@ var list = [
 	},
     {
         title: 'on-off-btn',
+    },
+    {
+        title: 'message-bar',
     },
     {
         title: 'check-box',
@@ -54,6 +60,22 @@ document.addEventListener('DOMContentLoaded', function() {
             },{
                 r:255,g:255,b:255,a:1
             }],
+            textDisplay:{
+                langs:['TW','JP','EN'],
+                picked:'TW',
+                "TW":{
+                    title:"標題 產品",
+                    context:"歡迎 攝影機，登入 登出 首頁 產品 查看更多"
+                },
+                "JP":{
+                    title:"タイトル製品",
+                    context:"ようこそカメラ、ログインログアウトホーム製品もっと見る",
+                },
+                "EN":{
+                    title:"Title Products",
+                    context:"Welcome camera, Login Log Out Home Products See More",
+                }
+            },
             ajaxBtn:{
             	url:'http://127.0.0.1:3000/api/delay',
                 result:'',
@@ -63,6 +85,11 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             onOffBtn:{
                 on:true
+            },
+            messageBar:{
+                messages:[],
+                newMes :'new message',
+                count:0
             },
             checkBox:{
                 picked:'product-2',

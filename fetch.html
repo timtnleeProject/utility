@@ -8,12 +8,14 @@
     <!-- bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <script src="scripts/ajaxHandler.js"></script>
+    <!--vue.js-->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <!--fetch polyfill-->
+    <script src="lib/fetch.js"></script>
     <!-- besTemplate -->
     <script src="scripts/besTemplate.js"></script>
     <link rel="stylesheet" type="text/css" href="css/besTemplate.css">
     <!-- customer script style -->
-    <link rel="stylesheet" type="text/css" href="demo.css">
     <style type="text/css">
     #app {
         padding: 10px;
@@ -22,6 +24,7 @@
     .flex {
         align-items: flex-start;
         display: flex;
+        margin-bottom: 10px;
     }
 
     .flex-col {
@@ -47,7 +50,7 @@
 <body>
     <div id="app">
         <h3>BesAjaxRequest</h3>
-        <div class="flex">
+        <div class="flex" style="flex-wrap: wrap;">
             <div class="flex-col">
                 <label>delay,primary 0</label>
                 <ajax-btn class="btn btn-primary" text="send" :bes_ajax="delayRequest"></ajax-btn>
@@ -83,12 +86,10 @@
                 <div class="box" style="background-color: lightblue;" v-for="t in waitingPool">{{t.options.name}}</div>
             </div>
             <div class="contain-box flex-col">
-                <h4>results:</h4>
+                <h4>results ( 30 lines ):</h4>
                 <div v-for="r in results">{{r}}</div>
             </div>
         </div>
-        <!--  <ajax-btn class="btn btn-primary" text="hello" :bes_ajax="besAjax" v-model="result" v-on:send="reqHandeler" :fetch_options="{path:'/api/fatal',headers:{costom:'myheader'}}"></ajax-btn>
-        <ajax-btn class="btn btn-primary" text="VIP" text_success="VIP" :bes_ajax="quickAjax" v-model="result" v-on:send="reqHandeler" :fetch_options="{path:'/api'}" :options="{name:'VIP insert'}"></ajax-btn> -->
     </div>
     <script type="text/javascript">
     const besAjax = BesAjaxRequest()
@@ -99,23 +100,24 @@
         host: 'http://127.0.0.1:3000'
     }, {
         responseType: 'text',
-        primary: 5
+        primary: 5,
+        timeout: 4000,
     })
 
     const badRequest = defaultRequest.extend({
-        path: '/api/fatal'
+        path: 'api/fatal'
     }, {
         retry: 5,
         sleep: 500
     })
     const delayRequest = defaultRequest.extend({
-        path: '/api/delay'
+        path: 'api/delay'
     }, {
         name: 'delayRequest',
         primary: 0
     })
     const instantRequest = defaultRequest.extend({
-        path: '/api'
+        path: 'api'
     }, {
         name: 'instantRequest',
         primary: 1,
@@ -143,13 +145,13 @@
         }
     })
     besAjax.successHandler = function(res, name) {
-        app.results.unshift(`[${name} done]. response: ${res}`)
-        if (app.results.length > 50)
+        app.results.unshift(`[${name} done]: response: ${res}`)
+        if (app.results.length > 30)
             app.results.pop()
     }
     besAjax.errorHandler = function(e, name) {
-        app.results.unshift(`[${name} fail]. error: ${e}`)
-        if (app.results.length > 50)
+        app.results.unshift(`[${name} fail]: error: ${e}`)
+        if (app.results.length > 30)
             app.results.pop()
     }
     besAjax.taskPool.on('pool', function() {
@@ -159,18 +161,18 @@
 
     function sendBadRequest() {
         for (let i = 0; i < 15; i++) {
-            badRequest.extend({ query: `?index=${i}` }, { name: `badRequest${i}` }).send()
+            badRequest.extend({ query: `index=${i}` }, { name: `badRequest${i}` }).send()
                 .then(function(res) {})
                 .catch(function(e) {})
         }
     }
     sendBadRequest();
     for(let i=0;i<5;i++){
-        delayRequest.extend({},{primary:4,name:'delayRequest5'}).send()
+        delayRequest.extend({query:'i='+i},{primary:4,name:'delayRequest5'}).send()
     }
     setTimeout(function(){
         for(let i=0;i<5;i++){
-            delayRequest.extend({path:'/api/delay2',query:'?i='+i},{primary:0,name:'delayRequest0'}).send()
+            delayRequest.extend({path:'api/delay2',query:'i='+i},{primary:0,name:'delayRequest0'}).send()
         }
     },100)
     

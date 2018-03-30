@@ -1,8 +1,8 @@
 let compo_name = '',
     compo_options = '';
-const compo_create = function(name,options) {
-        Vue.component(name, options)
-    }
+const compo_create = function(name, options) {
+    Vue.component(name, options)
+}
 compo_name = 'ajax-btn';
 compo_options = {
     props: {
@@ -45,7 +45,7 @@ compo_options = {
             type: Boolean,
             default: true
         },
-        value : {},
+        value: {},
         validate: {
             type: Function,
             default: function() {
@@ -56,18 +56,18 @@ compo_options = {
             type: Boolean,
             default: true
         },
-        bes_ajax : {
-            type:Object
+        bes_ajax: {
+            type: Object
         },
-        fetch_options:{
-            type:Object,
-            default: function(){
+        fetch_options: {
+            type: Object,
+            default: function() {
                 return {}
             }
         },
-        options:{
+        options: {
             type: Object,
-            default:function(){
+            default: function() {
                 return {}
             }
         }
@@ -86,13 +86,13 @@ compo_options = {
                     return;
                 this.status = 'pending'
                 //1.use besAjax Class (fetch)
-                if(this.bes_ajax){
+                if (this.bes_ajax) {
                     let com = this;
-                    let promise = this.bes_ajax['extend'](this.fetch_options, this.options).send().then(function(res){
+                    let promise = this.bes_ajax['extend'](this.fetch_options, this.options).send().then(function(res) {
                         com.status = 'success'
                         com.$emit('input', res)
                         return Promise.resolve(res)
-                    }).catch(function(e){
+                    }).catch(function(e) {
                         com.status = 'fail'
                         return Promise.reject(e)
                     })
@@ -192,15 +192,11 @@ compo_name = 'radio-group';
 compo_options = {
     template: '<div class="radio-group">\
     <div class="radio" v-for="r in radios">\
-    <input type="radio" :name="name" v-model="selected" v-on:change="changing" :value="r"><span>{{r}}</span>\
+    <input type="radio" v-model="selected" v-on:change="changing" :value="r"><span>{{r}}</span>\
     </div></div>',
     props: {
         radios: {
             type: Array
-        },
-        name: {
-            type: String,
-            default: 'name'
         },
         value: {}
     },
@@ -366,3 +362,55 @@ compo_create(compo_name, popupPrompt.extend({
         <button class="cancel" v-on:click="confirm(false)">{{text_cancel}}</button>\
     </div></div>'
 }))
+
+compo_name = 'message-bar';
+compo_options = {
+    template: '<div class="message-bar"><div class="mes" v-for="mes in message" :class="(mes.type)?mes.type:\'normal\'">{{mes.message}}</div></div>',
+    data: function() {
+        return {
+            length: 0,
+            timer:null,
+        }
+    },
+    props: {
+        value: {},
+        max: {
+            type: Number,
+            default: 5
+        },
+        time:{
+            type: Number,
+            default: 1000
+        }
+    },
+    computed: {
+        message: function() {
+            var value = this.value;
+            var me = this;
+            if(value.length> this.max){
+                value.pop()
+            }
+            if (value.length > 0) {
+                if (this.timer)
+                    clearTimeout(this.timer);
+                this.timer = setTimeout(function() {
+                    value.pop()
+                }, this.time)
+            }
+            return value;
+        }
+    }
+}
+compo_create(compo_name, compo_options)
+// compo_name = 'mult-tab';
+// compo_options = {
+//     template : '<div class="mult-tab">\
+//         <div class="tab-group">\
+//             <div class="tab">中文</div><div class="tab">English</div><div class="tab">English</div>\
+//         </div>\
+//         <div class="context">12323123asdsdasdasdasd</div></div>',
+//     data: function(){
+//         return {}
+//     }
+// }
+// compo_create(compo_name,compo_options)

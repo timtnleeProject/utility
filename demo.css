@@ -53,3 +53,6 @@
 .on-off-btn {
 	width: 60px;
 }
+.flex {
+	display: flex;
+}

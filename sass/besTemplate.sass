@@ -100,3 +100,45 @@ $on-off-btn-border-color: #00bbb3
 		flex-direction: column
 		// justify-content: center
 		align-items: center
+.message-bar
+	opacity: 0.9
+	position: fixed
+	z-index: 1400
+	top: 0
+	left: 0
+	width: 100vw
+	text-align: center
+	.success
+		color: lightgreen
+	.warning
+		color: red
+	.normal
+		color: #646478
+	.mes
+		padding: 5px
+		background-color: white
+		border-bottom: 1px solid #646478
+// .mult-tab
+// 	box-sizing: border-box
+// 	width: 100%
+// 	display: flex
+// 	flex-direction: column
+// 	.tab-group
+// 		display: flex
+// 		.tab
+// 			padding: 5px
+// 			border-radius: 5px 5px 0px 0px
+// 			border-width: 1px 1px 0 1px 
+// 			border-color: black
+// 			border-style: solid
+// 			cursor: pointer
+// 			background-color: gray
+// 		.tab.active
+// 			z-index: 100
+// 			background-color: white
+// 	@for $i from 1 through 30
+// 		.tab:nth-child(#{$i})
+// 			transform: translateX(($i - 1)*-2px)
+// 	.context
+// 		padding: 5px
+// 		border: 1px solid gray

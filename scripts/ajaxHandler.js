@@ -43,9 +43,9 @@ function BesAjaxRequest() {
     TaskPool.prototype = Object.create(EventListener.prototype);
     TaskPool.prototype.constructor = TaskPool;
     TaskPool.prototype.execute = function() {
+        log('TaskPool', `Execute exePool`);
         this.exePool.forEach(function(task) {
             let status = task.status
-            task.stop = false;
             if (status === 'init') {
                 task.run();
             } else if (status === 'pause') {
@@ -54,7 +54,6 @@ function BesAjaxRequest() {
                 task.resolve()
             }
         })
-        log('TaskPool', `Execute exePool`);
     }
     TaskPool.prototype.getId = function(num) {
         const char = 'qwertasdfgzxcvb1234567890';
@@ -95,7 +94,7 @@ function BesAjaxRequest() {
             })
             if (this.exePool[0].primary > task.primary) {
                 let lessPrimaryTask = this.exePool.shift();
-                lessPrimaryTask.stop = true
+                lessPrimaryTask.pause()
                 this.waitingPool.push(lessPrimaryTask);
                 this.exePool.push(task)
                 log('TaskPool', `put ${lessPrimaryTask.options.name} from exePool to waitingPool`)
@@ -214,6 +213,7 @@ function BesAjaxRequest() {
         this.status = 'init';
         this.stop = false;
         this.id = null;
+        this.timer = null;
         this.retry = (options.retry) ? options.retry : 0;
         this.sleep = (options.sleep) ? options.sleep : 100;
     }
@@ -222,48 +222,65 @@ function BesAjaxRequest() {
     Task.prototype.resolve = function() {
         this.presolve(this.response)
     }
+    Task.prototype.pause = function() {
+        this.stop = true;
+        clearTimeout(this.timer)
+    }
     Task.prototype.run = function() {
         const me = this;
         this.status = 'proccess'
+        this.stop = false;
+        let promiseStart;
+        const path = (me.fetchoptions.path) ? '/' + me.fetchoptions.path : '/';
+        const query = (me.fetchoptions.query) ? '?' + me.fetchoptions.query : '?';
+        const url = (me.fetchoptions.url) ? me.fetchoptions.url + query : me.fetchoptions.host + path + query;
+        const fetchPromise = fetch(url, me.fetchoptions);
+
+        if (this.options.timeout) { //設置timeout
+            const milsec = this.options.timeout;
+            promiseStart = Promise.race([fetchPromise, new Promise(function(resolve, reject) {
+                me.timer = setTimeout(function() {
+                    reject(`Reject task, over timeout ${milsec}`)
+                }, milsec)
+            })])
+        } else { //沒有timeout
+            promiseStart = fetchPromise;
+        }
         new Promise(function(resolve, reject) {
-            let path = (me.fetchoptions.path) ? me.fetchoptions.path : '/';
-            let query = (me.fetchoptions.query) ? me.fetchoptions.query : '?';
-            let url = (me.fetchoptions.url) ? me.fetchoptions.url + query : me.fetchoptions.host + path + query;
-            fetch(url, me.fetchoptions)
-                .then(function(response) {
-                    if (!response.ok) { //fetch won't catch 404, 500 error, etc...check response.ok
-                        return Promise.reject(response.statusText)
-                    }
-                    log('Task', `task "${me.options.name}" success with status ${response.status}`)
-                    response = (me.type) ? response[me.type]() : response;
-                    response = (response == undefined) ? true : response;
-                    if (me.stop) {
-                        log('Task', `${me.options.name} ready to be resolve in waitingPool.`)
-                        me.resolveLater(resolve, response)
-                    } else {
-                        resolve(response);
-                    }
-                }).catch(function(e) {
-                    if (++me.count <= me.retry) {
-                        log('Task', `task "${me.options.name}" will retry with statusText : ${e}, has tried ${me.count} times`)
-                        setTimeout(function() {
-                            if (!me.stop) {
-                                me.run();
-                            } else {
-                                me.status = 'pause'
-                                log('Task', `task "${me.options.name}" stop retry due to pause.`)
-                            }
-                        }, me.sleep)
-                    } else {
-                        if (me.stop) {
-                            log('Task', `${me.options.name} ready to be reject in waitingPool.`)
-                            me.resolveLater(reject, e)
+            promiseStart.then(function(response) {
+                if (!response.ok) { //fetch won't catch 404, 500 error, etc...check response.ok
+                    return Promise.reject(response.statusText)
+                }
+                log('Task', `task "${me.options.name}" success with status ${response.status}`)
+                response = (me.type) ? response[me.type]() : response;
+                response = (response == undefined) ? true : response;
+                if (me.stop) {
+                    log('Task', `${me.options.name} ready to be resolve in waitingPool.`)
+                    me.resolveLater(resolve, response)
+                } else {
+                    resolve(response);
+                }
+            }).catch(function(e) {
+                if (++me.count <= me.retry) {
+                    log('Task', `task "${me.options.name}" will retry with statusText : ${e}, has tried ${me.count} times`)
+                    setTimeout(function() {
+                        if (!me.stop) {
+                            me.run();
                         } else {
-                            log('Task', `task "${me.options.name}" fail with statusText ${e}`)
-                            reject(e)
+                            me.status = 'pause'
+                            log('Task', `task "${me.options.name}" stop retry due to pause.`)
                         }
+                    }, me.sleep)
+                } else {
+                    if (me.stop) {
+                        log('Task', `${me.options.name} ready to be reject in waitingPool.`)
+                        me.resolveLater(reject, e)
+                    } else {
+                        log('Task', `task "${me.options.name}" fail with statusText ${e}`)
+                        reject(e)
                     }
-                })
+                }
+            })
         }).then(function(response) {
             me.emit('done', 'success', response)
         }).catch(function(e) {

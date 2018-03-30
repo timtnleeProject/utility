@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>lazy</title>
+</head>
+<body>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="scripts/lazyLoad.js"></script>
+    <!--vue.js-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <!--fetch polyfill-->
+    <script src="lib/fetch.js"></script>
+    <!-- besTemplate -->
+    <script src="scripts/besTemplate.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/besTemplate.css">
+    <style type="text/css">
+    body{
+    	height: 5000px;
+    }
+    	#app{
+    		position: relative;
+    		width: 100vw;
+    		display: flex;
+    		flex-wrap: wrap;
+    	}
+    	.img-container{
+    		width: 25%;
+    		border: 1px solid black;
+    	}
+    	.img-container img{
+    		width: 100%;
+    	}
+    </style>
+</body>
+	<div id="app">
+		<div class="img-container" v-for="i in num">
+			<img class="lazy-load" :lazy-src="'/assets/gallery/'+(i%3+1)+'.jpg?i='+i">
+			<div v-if="i%4===0" style="height: 200px"></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var vue = new Vue({
+			el:'#app',
+			data:{
+				num : 50
+			}
+		})
+		lazyLoad()
+	</script>
+</html>

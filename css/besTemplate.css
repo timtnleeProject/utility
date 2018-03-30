@@ -99,3 +99,22 @@
     display: flex;
     flex-direction: column;
     align-items: center; }
+
+.message-bar {
+  opacity: 0.9;
+  position: fixed;
+  z-index: 1400;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  text-align: center; }
+  .message-bar .success {
+    color: lightgreen; }
+  .message-bar .warning {
+    color: red; }
+  .message-bar .normal {
+    color: #646478; }
+  .message-bar .mes {
+    padding: 5px;
+    background-color: white;
+    border-bottom: 1px solid #646478; }
