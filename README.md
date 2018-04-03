@@ -118,7 +118,7 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 - Global error handler function for all requests in BesAjaxObject. To use it, just overwrite it.
 - **type** `<Function>`
 
-###BesAjaxObject.on('pool', `Function`)
+### BesAjaxObject.on('pool', `Function`)
 - Fired when exePool/waitingPool push/remove tasks.
 
 ### BesRequestObject

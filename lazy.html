@@ -6,8 +6,6 @@
 </head>
 <body>
 	<link rel="stylesheet" type="text/css" href="css/reset.css">
-    <!-- bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
     <script src="scripts/lazyLoad.js"></script>
     <!--vue.js-->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
@@ -22,23 +20,40 @@
     }
     	#app{
     		position: relative;
-    		width: 100vw;
-    		display: flex;
-    		flex-wrap: wrap;
+            display: flex;
     	}
     	.img-container{
     		width: 25%;
     		border: 1px solid black;
     	}
+        .col {
+            width: 100%;
+        }
     	.img-container img{
     		width: 100%;
     	}
+        .text{
+            padding: 20px 5px 20px 5px;
+        }
+        h5{
+          font-weight: bold;font-size: large;  
+        }
     </style>
 </body>
+    <header style="padding: 20px">
+        <h5>lazyLoad</h5>
+        <p>Call lazyLoad() after DOM rendered</p>
+    </header>
 	<div id="app">
-		<div class="img-container" v-for="i in num">
-			<img class="lazy-load" :lazy-src="'/assets/gallery/'+(i%3+1)+'.jpg?i='+i">
-			<div v-if="i%4===0" style="height: 200px"></div>
+		<div v-for="index in 4" class="img-container">
+            <div v-for="i in 72" class="col">
+                <img class="lazy-load" :lazy-src="'/assets/gallery/'+((i+index)%4+1)+'.jpg?nocache=1;i='+i" alt="">
+                <div class="text">
+                    <h5>Title</h5>
+                    <p>Some text about the picture.</p>
+                    <a>link</a>
+                </div>
+            </div>
 		</div>
 	</div>
 	<script type="text/javascript">
@@ -48,6 +63,11 @@
 				num : 50
 			}
 		})
-		lazyLoad()
+		lazyLoad({
+            offset: -20,
+            lazyTop: true,
+            loadingSrc : "/assets/gallery/loading.gif",
+            errorSrc : "/assets/gallery/error.jpg",
+        })
 	</script>
 </html>

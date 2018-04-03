@@ -5,11 +5,8 @@ const express = require('express')
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname),{
-	etag: false,
-	maxAge:1000,
-	lastModified: false,
-}));
+app.use(express.static(path.join(__dirname)));
+
 
 app.use((req,res,next)=>{
 	res.header('Access-Control-Allow-Origin','*');
@@ -17,7 +14,7 @@ app.use((req,res,next)=>{
 	next()
 })
 app.get('/', (req,res)=>{
-	res.end('<a href="demo.html">Demo</a><br><a href="fetch.html">Fetch</a>')
+	res.end('<a href="demo.html">Demo</a><br><a href="fetch.html">Fetch</a><br><a href="lazy.html">Lazy</a>')
 })
 app.get('/api', (req,res)=>{
 	let json={"format":"json"}
