@@ -10,14 +10,14 @@
 	var besAjax = BesAjaxRequest();
 	var defaultRequest = besAjax.createRequest({
 		host: 'http://127.0.0.1:3000',
-        path: 'api',
+        	path: 'api',
 	},{
 		responseType: 'text',
-        retry: 7,
-        sleep: 1000,
+        	retry: 7,
+        	sleep: 1000,
 		primary: 3,
 		timeout: 5000,
-        name: 'defaultReq',
+        	name: 'defaultReq',
 	});
 	defaultRequest.send().then((res)=>{
 		//handle response
@@ -32,7 +32,7 @@
         body: JSON.stringify({ name: 'p0855' }),
     }, {
         responseType: 'json',
-		primary: 0, 
+	primary: 0, 
         name: 'postReq',
     });
 	postRequest.send();
@@ -152,10 +152,10 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 		- request's host. _ex: 'http://example.com'_
 		- **type** `<String>`
 	- path 
-		- request's path. _ex: '/api'_
+		- request's path. _ex: 'api'_
 		- **type** `<String>`
 	- query 
-		- request's query string. _ex: '?user="xxx"'_
+		- request's query string. _ex: 'user=xxx;id=123'_
 		- **type** `<String>`   
 ### options
 - BesRequestObject options
