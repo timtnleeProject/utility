@@ -47,7 +47,7 @@
 	<div id="app">
 		<div v-for="index in 4" class="img-container">
             <div v-for="i in 72" class="col">
-                <img class="lazy-load" :lazy-src="'/assets/gallery/'+((i+index)%4+1)+'.jpg?nocache=1;i='+i" alt="">
+                <img class="lazy-load" :lazy-src="'/assets/gallery/'+((i+index)%4+1)+'.jpg?i='+i" alt="">
                 <div class="text">
                     <h5>Title</h5>
                     <p>Some text about the picture.</p>

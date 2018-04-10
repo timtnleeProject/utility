@@ -22,14 +22,15 @@ function lazyLoad(options) {
         imgList.push(img)
     }
     window.addEventListener('scroll', function(e) {
-        onScreen()
+        onScroll()
     })
+    onScroll()
 
-    onScreen()
-
-    function onScreen() {
+    function onScroll() {
         if (timer)
             clearTimeout(timer)
+        if(imgList.length===0)
+        	return;
         timer = setTimeout(function() {
             const clone = imgList.slice();
             clone.reverse();

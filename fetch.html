@@ -53,23 +53,23 @@
         <div class="flex" style="flex-wrap: wrap;">
             <div class="flex-col">
                 <label>delay,primary 0</label>
-                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="delayRequest"></ajax-btn>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="delayRequest" :style="{backgroundColor:delayRequest.options.color}"></ajax-btn>
             </div>
             <div class="flex-col">
                 <label>delay post,primary 0</label>
-                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="postRequest"></ajax-btn>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="postRequest" :style="{backgroundColor:postRequest.options.color}"></ajax-btn>
             </div>
             <div class="flex-col">
                 <label>instant,primary 1</label>
-                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest"></ajax-btn>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest" :style="{backgroundColor:instantRequest.options.color}"></ajax-btn>
             </div>
             <div class="flex-col">
                 <label>instant2,primary 5</label>
-                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest2"></ajax-btn>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest2" :style="{backgroundColor:instantRequest2.options.color}"></ajax-btn>
             </div>
             <div class="flex-col">
                 <label>send 10 badRequest</label>
-                <button class="btn btn-primary" onclick="sendBadRequest()">send</button>
+                <button class="btn btn-primary" onclick="sendBadRequest()" style="background-color: red">send</button>
             </div>
         </div>
         <div class="flex">
@@ -79,11 +79,11 @@
             </div>
             <div class="contain-box flex-col pool">
                 <h4>exePool</h4>
-                <div class="box" style="background-color: lime;" v-for="t in exePool">{{t.options.name}}</div>
+                <div class="box" v-for="t in exePool" :style="{backgroundColor : t.options.color}">{{t.options.name}}</div>
             </div>
             <div class="contain-box flex-col pool">
                 <h4>waitingPool</h4>
-                <div class="box" style="background-color: lightblue;" v-for="t in waitingPool">{{t.options.name}}</div>
+                <div class="box" v-for="t in waitingPool" :style="{backgroundColor : t.options.color}">{{t.options.name}}</div>
             </div>
             <div class="contain-box flex-col">
                 <h4>results ( 30 lines ):</h4>
@@ -102,19 +102,22 @@
         responseType: 'text',
         primary: 5,
         timeout: 4000,
+        color:'lightgray',
     })
 
     const badRequest = defaultRequest.extend({
         path: 'api/fatal'
     }, {
         retry: 5,
-        sleep: 500
+        sleep: 500,
+        color:'red',
     })
     const delayRequest = defaultRequest.extend({
         path: 'api/delay'
     }, {
         name: 'delayRequest',
-        primary: 0
+        primary: 0,
+        color: 'rgba(0,0,255,0.7)',
     })
     const instantRequest = defaultRequest.extend({
         path: 'api'
@@ -168,7 +171,7 @@
     }
     sendBadRequest();
     for(let i=0;i<5;i++){
-        delayRequest.extend({query:'i='+i},{primary:4,name:'delayRequest5'}).send()
+        delayRequest.extend({query:'i='+i},{primary:4,name:'delayRequest5',color: 'rgba(0,0,255,0.2)',}).send()
     }
     setTimeout(function(){
         for(let i=0;i<5;i++){

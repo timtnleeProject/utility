@@ -65,11 +65,10 @@
                         <h5 id="text-display">#text-display</h5>
                         <div class="card-block">
                             <div class="flex">
-                                <radio-group :radios="textDisplay.langs" v-model="textDisplay.picked"></radio-group>
+                                <radio-group :radios="textDisplay.langs" v-model="textDisplay.picked" style="flex-shrink: 0"></radio-group>
                                 <div style="border:1px solid lightgray;flex-grow: 1;margin-left: 10px;padding: 10px;">
                                     <h4>{{textDisplay[textDisplay.picked].title}}</h4>
                                     {{textDisplay[textDisplay.picked].context}}
-                                </div>
                             </div>
                         </div>
                     </div> 
