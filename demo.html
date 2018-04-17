@@ -4,18 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="css/reset.css">
-    <!-- bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-    <!-- vue -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
-    <!-- besTemplate -->
-    <script src="scripts/besTemplate.js"></script>
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/besTemplate.css">
+    <!-- Main Quill library -->
+    <script src="//cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <!-- Theme included stylesheets -->
+    <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <!-- customer script style -->
     <link rel="stylesheet" type="text/css" href="demo.css">
+    <!-- vue -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script src="lib/datepicker.js"></script>
+    <!-- besTemplate -->
+    <script src="scripts/besTemplate.js"></script>
     <script src="demo.js"></script>
     <title>besTemplate</title>
 </head>
@@ -38,267 +40,217 @@
             </ul>
         </div>
         <div class="demo">
-            <div class="card">
-                <h3 class="card-block">Teamplate</h3>
-                <div class="card-block">
-                    <h4 class="text-primary">color ticks</h4>
-                    <div class="card-block">
-                        <h5 id="color-ticks">#color-ticks</h5>
-                        <div class="card-block">
-                            <div class="row">
-                                <div v-for="(color,index) in colorTicks" class="col-md-3 mb-2">
-                                    <div class="color-ticks" :style="{backgroundColor: 'rgba('+color.r+','+color.g+','+color.b+','+color.a+')'}">
-                                    </div>
-                                    <h5 class="text-center">{{colorTicksHex[index]}}</h5>
-                                    <div v-for="(val, key) in color" class="row" style="margin:0">
-                                        <label class="col-2">{{key}}</label>
-                                        <input class="col-10 form-control" type="number" v-model="color[key]" max="255" min="0">
-                                    </div>
+            <h3 class="card-block">Teamplate</h3>
+            <card title="color ticks">
+                <card-sub title="color-ticks">
+                    <div class="row">
+                        <div v-for="(color,index) in colorTicks" class="col-md-3 mb-2">
+                            <div class="color-ticks" :style="{backgroundColor: 'rgba('+color.r+','+color.g+','+color.b+','+color.a+')'}">
+                            </div>
+                            <div class="row" style="margin:0">
+                                <label class="col-2">string</label>
+                                <input class="col-10 form-control" style="font-weight: bold" name="" :value="colorHex[index]" v-on:input="strCalc(index,$event)">
+                            </div>
+                            <div v-for="(val, key) in color" class="row" style="margin:0">
+                                <label class="col-2">{{key}}</label>
+                                <input class="col-10 form-control" type="number" :value="color[key]" v-on:input="rgbaCalc(index,key,$event)" max="255" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </card-sub>
+            </card>
+            <card title="text display">
+                <card-sub title="text-display">
+                    <div class="flex">
+                        <radio-group :radios="textDisplay.langs" v-model="textDisplay.picked" style="flex-shrink: 0"></radio-group>
+                        <div style="border:1px solid lightgray;flex-grow: 1;margin-left: 10px;padding: 10px;">
+                            <h4>{{textDisplay[textDisplay.picked].title}}</h4> {{textDisplay[textDisplay.picked].context}}
+                        </div>
+                    </div>
+                </card-sub>
+            </card>
+            <card title="ajax-btn">
+                <card-sub>
+                    <card-input title="request URL" v-model="ajaxBtn.url"></card-input>
+                    <card-span title="result" :value="ajaxBtn.result"></card-span>
+                </card-sub>
+                <card-sub title="ajax-btn(get)">
+                    <div class="row">
+                        <div class="col">
+                            <h6>defult</h6>
+                            <ajax-btn class="btn btn-primary" :url="ajaxBtn.url" text="send" v-model="ajaxBtn.result" :headers="ajaxBtn.headers"></ajax-btn>
+                        </div>
+                        <div class="col">
+                            <h6>once</h6>
+                            <ajax-btn class="btn btn-primary" type="once" :url="ajaxBtn.url" text="send" text_success="success" @end="val=>ajaxBtn.result=val"></ajax-btn>
+                        </div>
+                        <div class="col">
+                            <h6>class styling</h6>
+                            <ajax-btn class="ajax-btn-default btn" :url="ajaxBtn.url" text="send" @end="val=>ajaxBtn.result=val"></ajax-btn>
+                        </div>
+                        <div class="col">
+                            <h6>custom</h6>
+                            <ajax-btn-custom class="btn btn-info" :url="ajaxBtn.url" text="send" @end="val=>ajaxBtn.result=val">
+                                <div slot="ready">ready</div>
+                                <div slot="pending">
+                                    <div class="loading"></div>
                                 </div>
-                            </div>
+                                <div slot="success"><img class="ajax-btn-content" src="/assets/success.png"></div>
+                                <div slot="fail"><img class="ajax-btn-content" src="/assets/fail.png"></div>
+                            </ajax-btn-custom>
                         </div>
                     </div>
-                </div>
-                <div class="card-block">
-                   <h4 class="text-primary">text display</h4>
-                    <div class="card-block">
-                        <h5 id="text-display">#text-display</h5>
-                        <div class="card-block">
-                            <div class="flex">
-                                <radio-group :radios="textDisplay.langs" v-model="textDisplay.picked" style="flex-shrink: 0"></radio-group>
-                                <div style="border:1px solid lightgray;flex-grow: 1;margin-left: 10px;padding: 10px;">
-                                    <h4>{{textDisplay[textDisplay.picked].title}}</h4>
-                                    {{textDisplay[textDisplay.picked].context}}
-                            </div>
+                </card-sub>
+                <card-sub title="ajax-btn(post)">
+                    <card-input v-model="ajaxBtn.body.name" title="body.name"></card-input>
+                    <div class="row">
+                        <div class="col">
+                            <small class="mr-5">isvalid(computed) : {{validation_body}}</small>
+                            <h6>post request: json<br>validation</h6>
+                            <ajax-btn class="btn btn-primary" method="post" :headers="ajaxBtn.headers" :body="ajaxBtn.body" :url="ajaxBtn.url" text="send" :validation="validation_body" @end="val=>ajaxBtn.result=val"></ajax-btn>
                         </div>
-                    </div> 
-                </div>
-                <div class="card-block">
-                    <h4 class="text-primary">ajax-button</h4>
-                    <div class="card-block">
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">request url</span>
-                            <input v-model="ajaxBtn.url" type="text" class="form-control" aria-describedby="basic-addon1">
-                        </div>
-                        <br>
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">result</span>
-                            <span type="text" class="form-control" aria-describedby="basic-addon1">{{ajaxBtn.result}}</span>
+                        <div class="col">
+                            <small>isvalid(methods) : {{ajaxBtn.isvalid}}</small>
+                            <h6>post request: urlecoding<br>validate</h6>
+                            <ajax-btn class="btn btn-primary" method="post" :json="false" :headers="ajaxBtn.headers" :body="ajaxBtn.body" :url="ajaxBtn.url" text="send" :validate="validate" @end="val=>ajaxBtn.result=val"></ajax-btn>
                         </div>
                     </div>
-                    <div class="card-block">
-                        <h5 id="ajax-btn(get)" class="mb-3">#ajax-btn(get)</h5>
-                        <div class="row">
-                            <div class="col">
-                                <h6>defult</h6>
-                                <ajax-btn class="btn btn-primary" :url="ajaxBtn.url" text="send" v-model="ajaxBtn.result" :headers="ajaxBtn.headers"></ajax-btn>
-                            </div>
-                            <div class="col">
-                                <h6>once</h6>
-                                <ajax-btn class="btn btn-primary" type="once" :url="ajaxBtn.url" text="send" text_success="success" @end="val=>ajaxBtn.result=val"></ajax-btn>
-                            </div>
-                            <div class="col">
-                                <h6>class styling</h6>
-                                <ajax-btn class="ajax-btn-default btn" :url="ajaxBtn.url" text="send" @end="val=>ajaxBtn.result=val"></ajax-btn>
-                            </div>
-                            <div class="col">
-                                <h6>custom</h6>
-                                <ajax-btn-custom class="btn btn-info" :url="ajaxBtn.url" text="send" @end="val=>ajaxBtn.result=val">
-                                    <div slot="ready">ready</div>
-                                    <div slot="pending">
-                                        <div class="loading"></div>
-                                    </div>
-                                    <div slot="success"><img class="ajax-btn-content" src="/assets/success.png"></div>
-                                    <div slot="fail"><img class="ajax-btn-content" src="/assets/fail.png"></div>
-                                </ajax-btn-custom>
-                            </div>
+                </card-sub>
+            </card>
+            <card title="on-off-btn">
+                <card-sub title="on-off-btn">
+                    <card-span title="on" :value="onOffBtn.on"></card-span>
+                    <div class="row">
+                        <div class="col">
+                            <on-off-btn v-model="onOffBtn.on"></on-off-btn>
+                        </div>
+                        <div class="col">
+                            <on-off-btn v-model="onOffBtn.on" text_on="啟用" text_off="關閉"></on-off-btn>
                         </div>
                     </div>
-                    <div class="card-block">
-                        <h5 id="ajax-btn(post)" class="mb-3">#ajax-btn(post)</h5>
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">body.name</span>
-                            <input v-model="ajaxBtn.body.name" type="text" class="form-control" aria-describedby="basic-addon1">
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <small class="mr-5">isvalid(computed) : {{validation_body}}</small>
-                                <h6>post request: json<br>validation</h6>
-                                <ajax-btn class="btn btn-primary" method="post" :headers="ajaxBtn.headers" :body="ajaxBtn.body" :url="ajaxBtn.url" text="send" :validation="validation_body" @end="val=>ajaxBtn.result=val"></ajax-btn>
-                            </div>
-                            <div class="col">
-                                <small>isvalid(methods) : {{ajaxBtn.isvalid}}</small>
-                                <h6>post request: urlecoding<br>validate</h6>
-                                <ajax-btn class="btn btn-primary" method="post" :json="false" :headers="ajaxBtn.headers" :body="ajaxBtn.body" :url="ajaxBtn.url" text="send" :validate="validate" @end="val=>ajaxBtn.result=val"></ajax-btn>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-block">
-                    <h4 class="text-primary">on-off-button</h4>
-                    <div class="card-block">
-                        <h5 id="on-off-btn" class="mb-3">#on-off-btn</h5>
-                        <div class="input-group mb-3">
-                            <span class="input-group-addon" id="basic-addon1">on</span>
-                            <span class="form-control" aria-describedby="basic-addon1">{{onOffBtn.on}}</span>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <on-off-btn v-model="onOffBtn.on"></on-off-btn>
-                            </div>
-                            <div class="col">
-                                <on-off-btn v-model="onOffBtn.on" text_on="啟用" text_off="關閉"></on-off-btn>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-block">
-                    <h4 class="text-primary" id="message-bar">message-bar</h4>
-                    <div class="input-group mb-3">
-                        <span class="input-group-addon" id="basic-addon1">Message</span>
-                        <input class="form-control" v-model="messageBar.newMes">
-                    </div>
+                </card-sub>
+            </card>
+            <card title="message-bar">
+                <card-sub title="message-bar">
+                    <card-input v-model="messageBar.newMes" title="message"></card-input>
                     <button class="btn btn-info" v-on:click="()=>messageBar.messages.unshift({message:(messageBar.count++)+'.'+messageBar.newMes})">Add Message</button>
                     <button class="btn btn-info" v-on:click="()=>messageBar.messages.unshift({message:(messageBar.count++)+'.'+messageBar.newMes, type:'warning'})">Add Warning</button>
                     <message-bar v-model="messageBar.messages"></message-bar>
-                </div>
-                <div class="card-block">
-                    <h4 class="text-primary">check-box</h4>
-                    <div class="card-block">
-                        <h5 id="check-box">#check-box</h5>
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">Your choise</span>
-                            <span class="form-control" aria-describedby="basic-addon1" style="flex-direction: row;justify-content: left">
+                </card-sub>
+            </card>
+            <card title="check-box">
+                <card-sub title="check-box">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Your choise</span>
+                        <span class="form-control" aria-describedby="basic-addon1" style="flex-direction: row;justify-content: left">
                                 <span v-for="p in checkBox.product" v-if="p.chosen" class="w-25">{{p.name}}</span>
-                            </span>
-                        </div>
-                        <div v-for="p in checkBox.product">
-                            <input type="checkbox" v-model="p.chosen"><span>{{p.name}}</span>
-                        </div>
+                        </span>
                     </div>
-                </div>
-                <div class="card-block">
-                    <h4 class="text-primary">radio-btn</h4>
-                    <div class="card-block">
-                        <h5 id="radio-group">#radio-group</h5>
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">Your choise</span>
-                            <span class="form-control" aria-describedby="basic-addon1" style="flex-direction: row;justify-content: left">
-                                {{checkBox.picked}}
-                            </span>
-                        </div>
-                        <radio-group :radios="checkBox.products" v-model="checkBox.picked"></radio-group>
+                    <div v-for="p in checkBox.product">
+                        <input type="checkbox" v-model="p.chosen"><span>{{p.name}}</span>
                     </div>
-                </div>
-                <div class="card-block">
-                    <h4 class="text-primary">text-input</h4>
-                    <div class="card-block">
-                        <h5 id="text-input">#text-input</h5>
-                        <div class="input-group mb-2">
-                            <span class="input-group-addon" id="basic-addon1">Text</span>
-                            <span class="form-control" aria-describedby="basic-addon1">
-                                {{textInput.text}}
-                            </span>
+                </card-sub>
+            </card>
+            <card title="radio-btn">
+                <card-sub title="radio-group">
+                    <card-span title="your choise" :value="checkBox.picked"></card-span>
+                    <radio-group :radios="checkBox.products" v-model="checkBox.picked"></radio-group>
+                </card-sub>
+            </card>
+            <card title="text-input">
+                <card-sub title="text-input">
+                    <card-span title="text" :value="textInput.text"></card-span>
+                    <card-input title="input" v-model="textInput.text"></card-input>
+                </card-sub>
+            </card>
+            <card title="drop-down-menu">
+                <card-sub title="drop-menu">
+                    <card-span title="selected" :value="dropMenu.selected"></card-span>
+                    <drop-menu class="custom-select" :options="dropMenu.options" v-model="dropMenu.selected"></drop-menu>
+                </card-sub>
+            </card>
+            <card title="popup">
+                <card-sub title="popup-alert">
+                    <card-input v-model="popup.message" title="message"></card-input>
+                    <div class="row">
+                        <div class="col">
+                            <popup-alert :message="popup.message" v-model="popup.alert.show"></popup-alert>
+                            <label>popup-alert</label>
+                            <on-off-btn v-model="popup.alert.show"></on-off-btn>
                         </div>
-                        <div class="input-group">
-                            <span class="input-group-addon" id="basic-addon1">Input</span>
-                            <input v-model="textInput.text" class="form-control" aria-describedby="basic-addon1">
-                        </div>
-                    </div>
-                </div>
-                <div class="card-block">
-                    <h4 class="text-primary">drop-down-menu</h4>
-                    <div class="card-block">
-                        <h5 id="drop-menu">#drop-menu</h5>
-                        <div class="input-group mb-2">
-                            <span class="input-group-addon" id="basic-addon1">selected</span>
-                            <span class="form-control" aria-describedby="basic-addon1">
-                                {{dropMenu.selected}}
-                            </span>
-                        </div>
-                        <drop-menu class="custom-select" :options="dropMenu.options" v-model="dropMenu.selected"></drop-menu>
-                    </div>
-                </div>
-                <div class="card-block">
-                    <h4 class="text-primary">popup</h4>
-                    <div class="card-block">
-                        <h5 id="popup-alert">#popup-alert</h5>
-                        <div class="input-group mb-2">
-                            <span class="input-group-addon" id="basic-addon1">message</span>
-                            <input class="form-control" aria-describedby="basic-addon1" v-model="popup.message">
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <popup-alert :message="popup.message" v-model="popup.alert.show"></popup-alert>
-                                <label>popup-alert</label>
-                                <on-off-btn v-model="popup.alert.show"></on-off-btn>
-                            </div>
-                            <div class="col">
-                                <popup-alert-custom text_confirm="我知道了" v-model="popup.alertCustom.show">
+                        <div class="col">
+                            <popup-alert-custom text_confirm="我知道了" v-model="popup.alertCustom.show">
+                                <slot>
+                                    <h3 class="text-danger">warning:</h3>
+                                    <h2>{{popup.message}}</h2>
                                     <slot>
-                                        <h3 class="text-danger">warning:</h3>
-                                        <h2>{{popup.message}}</h2>
-                                        <slot>
-                                </popup-alert-custom>
-                                <label>popup-alert-custom</label>
-                                <on-off-btn v-model="popup.alertCustom.show"></on-off-btn>
-                            </div>
+                            </popup-alert-custom>
+                            <label>popup-alert-custom</label>
+                            <on-off-btn v-model="popup.alertCustom.show"></on-off-btn>
                         </div>
                     </div>
-                    <div class="card-block">
-                        <h5 id="popup-confirm">#popup-confirm</h5>
-                        <div class="input-group mb-2">
-                            <span class="input-group-addon" id="basic-addon1">confirm/input</span>
-                            <span class="form-control" aria-describedby="basic-addon1">
-                                {{popup.input}}
-                            </span>
+                </card-sub>
+                <card-sub title="popup-confirm">
+                    <card-span title="confirm/input" :value="popup.input"></card-span>
+                    <div class="row">
+                        <div class="col">
+                            <popup-confirm v-model="popup.confirm.show" :message="popup.message" v-on:confirm="confirm(true)" v-on:cancel="confirm(false)"></popup-confirm>
+                            <label>popup-confirm</label>
+                            <on-off-btn v-model="popup.confirm.show"></on-off-btn>
                         </div>
-                        <div class="row">
-                            <div class="col">
-                                <popup-confirm v-model="popup.confirm.show" :message="popup.message" v-on:confirm="confirm(true)" v-on:cancel="confirm(false)"></popup-confirm>
-                                <label>popup-confirm</label>
-                                <on-off-btn v-model="popup.confirm.show"></on-off-btn>
-                            </div>
-                            <div class="col">
-                                <popup-confirm-custom v-model="popup.confirmCustom.show" :message="popup.message" v-on:confirm="confirm(true)" v-on:cancel="confirm(false)" text_confirm="確認" text_cancel="取消">
-                                    <slot>
-                                        <img src="assets/qm.png" style="width:30px">
-                                        {{popup.message}}
-                                    </slot>
-                                </popup-confirm-custom>
-                                <label>popup-confirm-custom</label>
-                                <on-off-btn v-model="popup.confirmCustom.show"></on-off-btn>
-                            </div>
-                            <div class="col">
-                                <popup-confirm-custom v-model="popup.confirmCustomValid.show" :message="popup.message" v-on:confirm="confirm(inputText)" v-on:cancel="confirm(false)" :validation="validation" text_confirm="確認" text_cancel="取消">
-                                    <slot>
-                                        <label>name:</label>
-                                        <input type="email" name="" v-model="inputText">
-                                        <span style="display: inline-block;">{{validationMes}}</span>
-                                    </slot>
-                                </popup-confirm-custom>
-                                <label>popup-confirm-custom(with validation)</label>
-                                <on-off-btn v-model="popup.confirmCustomValid.show"></on-off-btn>
-                            </div>
+                        <div class="col">
+                            <popup-confirm-custom v-model="popup.confirmCustom.show" :message="popup.message" v-on:confirm="confirm(true)" v-on:cancel="confirm(false)" text_confirm="確認" text_cancel="取消">
+                                <slot>
+                                    <img src="assets/qm.png" style="width:30px"> {{popup.message}}
+                                </slot>
+                            </popup-confirm-custom>
+                            <label>popup-confirm-custom</label>
+                            <on-off-btn v-model="popup.confirmCustom.show"></on-off-btn>
+                        </div>
+                        <div class="col">
+                            <popup-confirm-custom v-model="popup.confirmCustomValid.show" :message="popup.message" v-on:confirm="confirm(inputText)" v-on:cancel="confirm(false)" :validation="validation" text_confirm="確認" text_cancel="取消">
+                                <slot>
+                                    <label>name:</label>
+                                    <input type="email" name="" v-model="inputText">
+                                    <span style="display: inline-block;">{{validationMes}}</span>
+                                </slot>
+                            </popup-confirm-custom>
+                            <label>popup-confirm-custom(with validation)</label>
+                            <on-off-btn v-model="popup.confirmCustomValid.show"></on-off-btn>
                         </div>
                     </div>
-                    <div class="card-block">
-                        <h5 id="popup-propmt">#popup-propmt</h5>
-                        <div class="row">
-                            <div class="col">
-                                <popup-prompt v-model="popup.prompt.show" v-on:confirm="confirm" v-on:cancel="confirm(false)" message="enter your name"></popup-prompt>
-                                <label>popup-prompt</label>
-                               <on-off-btn v-model="popup.prompt.show"></on-off-btn> 
-                            </div>
-                            <div class="col">
-                                <popup-prompt-passward ></popup-prompt-passward>
-                            </div>
+                </card-sub>
+                <card-sub title="popup-propmt">
+                    <div class="row">
+                        <div class="col">
+                            <popup-prompt v-model="popup.prompt.show" v-on:confirm="confirm" v-on:cancel="confirm(false)" message="enter your name"></popup-prompt>
+                            <label>popup-prompt</label>
+                            <on-off-btn v-model="popup.prompt.show"></on-off-btn>
+                        </div>
+                        <div class="col">
+                            <popup-prompt-passward></popup-prompt-passward>
                         </div>
                     </div>
-                </div>
-            </div>
+                </card-sub>
+            </card>
+            <card title="Datepicker">
+                <div>resource/doc from: <a href="https://github.com/charliekassel/vuejs-datepicker" target="blank">GitHub</a></div>
+                <card-sub title="datepicker">
+                    <card-span title="date" :value="datepicker"></card-span>
+                    <div class="row">
+                        <datepicker class="col" placeholder="Select Date" v-model="datepicker"></datepicker>
+                        <datepicker class="col" placeholder="Select Date" :inline="true" v-model="datepicker"></datepicker>
+                    </div>
+                </card-sub>
+            </card>
+            <card title="rich text input">
+                <card-sub title="Quill">
+                    <div id="editor"></div>
+                </card-sub>
+            </card>
         </div>
     </div>
     </div>
 </body>
+
 </html>
