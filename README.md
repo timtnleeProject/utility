@@ -6,7 +6,8 @@
 * Retry when requests fail.
 * Sort requests by their priorities.
 
-### How to use ###
+
+### Create request ###
 	var besAjax = BesAjaxRequest();
 	var defaultRequest = besAjax.createRequest({
 		host: 'http://127.0.0.1:3000',
