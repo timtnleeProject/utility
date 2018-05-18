@@ -1,8 +1,8 @@
-let compo_name = '',
-    compo_options = '';
+let compo_name = '';
+let compo_options = '';
 const compo_create = function(name, options) {
     Vue.component(name, options)
-}
+};
 compo_name = 'ajax-btn';
 compo_options = {
     props: {

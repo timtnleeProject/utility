@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>i18n</title>
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script src="scripts/i18n.js"></script>
+    <style type="text/css">
+    header,
+    aside,
+    section,
+    footer {
+        box-shadow: 0px 3px 5px gray;
+        padding: 30px;
+    }
+
+    header {
+        position: relative;
+    }
+
+    header .right {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 30px;
+    }
+
+    header .lang-list {
+        width: 150px;
+        padding: 10px;
+        position: absolute;
+        right: 0;
+        border: 1px solid gray;
+        background-color: white;
+    }
+	.lang-btn{
+		padding: 5px;
+		background-color: white;
+		border: 1px solid gray;
+		cursor: pointer;
+		transition: background-color 1s;
+	}
+	.lang-btn:hover{
+		background-color: lightgray;
+	}
+    .mid-area {
+        padding: 0px 20px;
+        display: flex;
+    }
+
+    aside {
+        flex-basis:150px;
+        flex-grow: 0;
+        flex-shrink: 0;
+    }
+
+    li {
+        cursor: pointer;
+        padding: 5px;
+        color: #bb0003;
+    }
+
+    li:hover {
+        background-color: #eee;
+    }
+
+    section {
+    }
+
+    section div {
+        margin-bottom: 10px;
+    } section .code{
+    	border: 2px solid gray;
+    	border-radius: 3px;
+    	padding: 5px;
+    	background-color: lightgray;
+    	color: gray;
+    }
+    .firstLetter{
+    	color: grey;
+    }
+    .firstLetter::first-letter{
+    	font-size: 23px;
+    	font-weight: bold;
+    }
+
+    footer {}
+    </style>
+</head>
+
+<body>
+    <div id="app" v-on:click="closeGlobShow">
+        <header>
+            <span style="font-size: 24px">{{o.title}}</span>
+            <div class="right">
+                <button class="lang-btn" v-on:click.stop="show.langList=!show.langList">{{o.lang}}</button>
+                <ul v-if="show.langList" class="lang-list">
+                    <li v-for="l in lang" v-on:click="switchLang(l)">{{l}}</li>
+                </ul>
+            </div>
+        </header>
+        <div class="mid-area">
+            <aside>
+                <ul>
+                    <li v-for="i in o.list.0">{{i}}</li>
+                </ul>
+            </aside>
+            <section>
+            	<div style="font-size: 27px;">{{o.sectiontitle}}</div>
+            	<a href="/i18n2.html">{{o.link}}</a>
+                <div style="font-size: 23px;color" i18n="o.section.0"></div>
+                <div v-for="i in 5" class="firstLetter">{{i}}. In both cases, the instance will become a fragment instance which doesn’t have a root element. A fragment instance’s $el will point to an “anchor node”, which is an empty Text node (or a Comment node in debug mode). What’s probably more important though, is that directives, transitions and attributes (except for props) on the component element will not take any effect - because there is no root element to bind them to: 1 2 3 4 5 There are, of course, valid use cases for fragment instances, but it is in general a good idea to give your component template a single root element. It ensures directives and attributes on the component element to be properly transferred, and also results in slightly better performance. Changing Default Options It is possible to change the default value of an option by setting it on the global Vue.options object. For example, you can set Vue.options.replace = false to give all Vue instances the behavior of replace: false. Use this feature carefully, and use it only when you are starting a new project, because it affects the behavior of every instance.</div>
+            </section>
+        </div>
+        <footer>{{o.add}}</footer>
+    </div>
+    <script type="text/javascript">
+    const table = {
+        title: 'welcome',
+        list: ['home', 'history', 'product', 'project', 'contact us'],
+
+    }
+    const app = new Vue({
+        el: '#app',
+        data: {
+            lang: ['tw', 'en'],
+            o: {},
+            show: {
+                langList: false
+            }
+        },
+        methods: {
+            closeGlobShow: function() {
+                for (let k in this.show) {
+                    this.show[k] = false;
+                }
+            },
+            switchLang: function(l) {
+                i18nVue('http://127.0.0.1:3000/assets/lang/i18n/' + l + '.json', this, 'o');
+            }
+        }
+    })
+    i18nVue('http://127.0.0.1:3000/assets/lang/i18n/tw.json', app, 'o');
+    </script>
+</body>
+
+</html>

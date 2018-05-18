@@ -5,16 +5,15 @@ const express = require('express')
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname)));
-
-
 app.use((req,res,next)=>{
 	res.header('Access-Control-Allow-Origin','*');
 	res.header('Access-Control-Allow-Headers', '*')
 	next()
 })
+app.use(express.static(path.join(__dirname)));
+
 app.get('/', (req,res)=>{
-	res.end('<a href="demo.html">Demo</a><br><a href="fetch.html">Fetch</a><br><a href="lazy.html">Lazy</a>')
+	res.redirect('/index.html')
 })
 app.get('/api', (req,res)=>{
 	let json={"format":"json"}
@@ -46,7 +45,10 @@ app.post('/api/delay', (req,res)=>{
 		res.end(`hello ${req.body.name}`)
 	},1000)
 })
-
+app.post('/api/logsys', (req,res)=>{
+	console.log(req.body)
+	res.end()
+})
 http.createServer(app).listen(3000,()=>{
 	console.log('server listen on port 3000')
 })

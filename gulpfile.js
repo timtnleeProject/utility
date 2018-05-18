@@ -18,6 +18,6 @@ gulp.task('prefix', () =>
         .pipe(gulp.dest('dist'))
 );
 gulp.task('prefix:watch', function () {
-  gulp.watch('./css/*.css', ['prefix']);//'./sass/*.sass'有變動就執行gulp task 'sass'
+  gulp.watch('./css/*.css', ['prefix']);
 });
 gulp.task('all:watch' ,['prefix:watch', 'sass:watch'])

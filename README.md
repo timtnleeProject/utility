@@ -1,5 +1,5 @@
 ## BesAjax
-**Ajax handler using fetch API.**
+**A ajax handler using fetch API.**
 
 * Create default request.
 * Extend requests based on default/other requests.
@@ -11,14 +11,14 @@
 	var besAjax = BesAjaxRequest();
 	var defaultRequest = besAjax.createRequest({
 		host: 'http://127.0.0.1:3000',
-        	path: 'api',
+        path: 'api',
 	},{
 		responseType: 'text',
-        	retry: 7,
-       		sleep: 1000,
+        retry: 7,
+       	sleep: 1000,
 		primary: 3,
 		timeout: 5000,
-        	name: 'defaultReq',
+		name: 'defaultReq',
 	});
 	defaultRequest.send().then((res)=>{
 		//handle response
@@ -32,10 +32,16 @@
         	headers: { 'Content-Type':'application/json', 'myHeader':'hello'},
         	body: JSON.stringify({ name: 'p0855' }),
     	}, {
+			retry:0,
         	responseType: 'json',
-		primary: 0, 
+			primary: 0, 
 	        name: 'postReq',
     	});
+	postRequest.send();
+
+append body dynamically
+
+	postRequest.fetchoptions.body = JSON.stringify({name:'weruy1'});
 	postRequest.send();
 
 ### Demo ###
@@ -54,6 +60,11 @@ Belows are the steps showing how it works.
 **1.Create BesAjaxObject**
 
 Once you create a [`BesAjaxObject`](#BesAjaxObject), you can create and extand requests from it, and `BesAjaxObject` will handle all requests. 
+
+**2.Extend request**
+
+When extending request, child will extend ancestors' options: `options`,`fetchtoptions` and
+can add new properties or overide them, see [options](#options) and [fetchoptions](#fetchoptions). Also child request will extend all ancestors' callback functions: `onsuccess`, `onerror`, see [onsuccess](#onsuccess), [onerror](#onerror).
 
 **2.Pool**
 
@@ -139,7 +150,14 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 - Send request.
 - **type** `<Function>`
 - **return** `Promise`
-### fetchOptions
+
+### BesRequestObject.onsuccess
+- execute when task success, will extend ancestor requests' onsuccess function.
+- **type** `<Function>` 
+### BesRequestObject.onerror
+- execute when task error, will extend ancestor requests' onerror function.
+- **type** `<Function>` 
+### fetchoptions
 - **type** `<Object>`
 - Same as [fetch API's init options](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch)
 - additional/different options:
@@ -174,6 +192,13 @@ For browser compacity, include [fetch polyfill](https://github.com/github/fetch)
 		- Wait milliseconds before every retry.
 		- **type** `<Integer>`
 		- **default** `100`
+	- expofn(`x`,`sleep`)
+		- change `sleep` when task retry.
+		- **type** `<Function>`
+		- `x`: request has retried `x` times.
+		- `sleep`: current `sleep` value. 
+		- **return** sleep
+		- ex: `((x ,sleep) => sleep + x*200 )`
 	- timeout
 		- Requests will be reject after timeout (millisecond).
 		- **type** `<Integer>`

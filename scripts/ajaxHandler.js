@@ -1,5 +1,5 @@
-function BesAjaxRequest() {
-    const np = new Object()
+function BesAjaxRequest(glob_arg) {
+    const np = new Object();
 
     function log(title, mes) {
         if (np.log)
@@ -13,7 +13,7 @@ function BesAjaxRequest() {
         this.listener[event] = fn;
     }
     EventListener.prototype.emit = function() {
-        args = [];
+        let args = [];
         for (let a in arguments) {
             if (a != 0)
                 args.push(arguments[a])
@@ -112,8 +112,8 @@ function BesAjaxRequest() {
         let index = this.exePool.findIndex(function(t) {
             return t.id === id
         })
-        if (index < 0)
-            console.log('NOT FOUND xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ' + name)
+        // if (index < 0)
+        //     console.log('NOT FOUND xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx ' + name)
         this.exePool.splice(index, 1)
         this.emit('pool')
         this.releaseId(id)
@@ -125,9 +125,10 @@ function BesAjaxRequest() {
             this.waitingPool.sort(function(a, b) {
                 return a.primary - b.primary;
             })
-            let task = this.waitingPool.shift()
-            log('TaskPool', `put ${task.options.name} from waitingPool to exePool`)
-            if (this.exePool.length < np.poolSize) {
+            
+            while (this.exePool.length < np.poolSize) {
+                let task = this.waitingPool.shift()
+                log('TaskPool', `put ${task.options.name} from waitingPool to exePool`)
                 this.exePool.push(task)
                 this.emit('update')
                 this.emit('pool')
@@ -142,9 +143,36 @@ function BesAjaxRequest() {
         this.fetchoptions = fetchopt;
         this.options = opt;
         this.fetchoptions.headers = new Headers(fetchopt.headers)
+        this._onsuccess = function() {};
+        this._onerror = function() {};
+        Object.defineProperties(this, {
+            'onsuccess': {
+                get: function() { return this._onsuccess },
+                set: function(fn) {
+                    let origin = this._onsuccess;
+                    let newone = function() {
+                        origin.call(this);
+                        fn.call(this)
+                    }
+                    this._onsuccess = newone;
+                }
+            },
+            'onerror': {
+                get: function() { return this._onerror },
+                set: function(fn) {
+                    let origin = this._onerror;
+                    let newone = function() {
+                        origin.call(this);
+                        fn.call(this)
+                    }
+                    this._onerror = newone;
+                }
+            },
+        })
     }
     BesRequest.prototype = Object.create(EventListener.prototype);
     BesRequest.prototype.constructor = BesRequest;
+    //clone 會copy原先的options,產生新的BesRequest物件
     BesRequest.prototype.clone = function() {
         let originFetchOpt = {};
         let originOpt = {};
@@ -154,8 +182,12 @@ function BesAjaxRequest() {
         for (let i in this.options) {
             originOpt[i] = this.options[i]
         }
-        return new BesRequest(originFetchOpt, originOpt);
+        let clone = new BesRequest(originFetchOpt, originOpt);
+        clone.onsuccess = this.onsuccess;
+        clone.onerror = this.onerror;
+        return clone;
     }
+    //extend : 先clone, 加上新的options或修改舊的options
     BesRequest.prototype.extend = function(newfetchopt, newopt) {
         let clone = this.clone();
         if (newfetchopt) {
@@ -177,6 +209,7 @@ function BesAjaxRequest() {
     BesRequest.prototype.send = function() {
         log('BesRequest', 'Besrequest.send()')
         const task = new Task(this.fetchoptions, this.options);
+        const me = this;
         np.taskPool.addTask(task)
         return new Promise(function(resolve, reject) {
             task.on('done', function(status, res) {
@@ -184,10 +217,12 @@ function BesAjaxRequest() {
                 if (status === 'success') {
                     //if 共同成功回呼...
                     np.successHandler(res, task.options.name)
+                    me._onsuccess()
                     resolve(res)
                 } else if (status === 'fail') {
                     //共同失敗處理
                     np.errorHandler(res, task.options.name)
+                    me._onerror()
                     reject(res)
                 }
                 log('Task', `task ${task.options.name} done.`)
@@ -216,6 +251,7 @@ function BesAjaxRequest() {
         this.timer = null;
         this.retry = (options.retry) ? options.retry : 0;
         this.sleep = (options.sleep) ? options.sleep : 100;
+        this.expofn = options.expofn;
     }
     Task.prototype = Object.create(EventListener.prototype);
     Task.prototype.constructor = Task;
@@ -230,6 +266,8 @@ function BesAjaxRequest() {
         const me = this;
         this.status = 'proccess'
         this.stop = false;
+        if (this.expofn && this.count !== 0)
+            this.sleep = this.expofn(this.count, this.sleep);
         let promiseStart;
         const path = (me.fetchoptions.path) ? '/' + me.fetchoptions.path : '/';
         const query = (me.fetchoptions.query) ? '?' + me.fetchoptions.query : '?';
@@ -262,7 +300,7 @@ function BesAjaxRequest() {
                 }
             }).catch(function(e) {
                 if (++me.count <= me.retry) {
-                    log('Task', `task "${me.options.name}" will retry with statusText : ${e}, has tried ${me.count} times`)
+                    log('Task', `task "${me.options.name}" will retry after ${me.sleep}ms with statusText : ${e}, has tried ${me.count} times`)
                     setTimeout(function() {
                         if (!me.stop) {
                             me.run();
@@ -297,9 +335,11 @@ function BesAjaxRequest() {
             this.response = response;
         }
     }
-    np.log = false;
-    np.poolSize = 5;
-    np.resolveFirst = false;
+    if(!glob_arg)
+        glob_arg = {}
+    np.log = glob_arg.log||false;
+    np.poolSize = glob_arg.poolSize||5;
+    np.resolveFirst = glob_arg.resolveFirst||false;
     np.taskPool = new TaskPool();
     np.errorHandler = function(e) {};
     np.successHandler = function(res) {};

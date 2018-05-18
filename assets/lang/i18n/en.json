@@ -1,0 +1,18 @@
+{
+	"lang": "Language",
+    "title": "welcome",
+    "list": ["home", "history", "product", "project", "contact us"],
+    "sectiontitle":"Vue i18n demo",
+    "section":[
+    	"This is Vue i18n demo. Click the button at the top right corner to switch languages.",
+    	"Warnning! Asume that 'o' represents the hole data of json file. Do not use something like",
+    	{"style":"code","text":"{{o.a.b}}"},
+    	"it will throw error when page init 'cannor find property b of undefined', since 'o' is just a empty object",
+    	"However, you can use",
+    	{"style":"code","text":"v-for = 'k in o.a'"},
+    	"it won't throw error.",
+    	"----------------"
+    ],
+    "link":"See another i18n Demo",
+    "add":"116 No. 64, Section 2, Guide Road, Wenshan District, Taipei City"
+}

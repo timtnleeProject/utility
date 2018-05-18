@@ -44,6 +44,9 @@
         box-sizing: border-box;
         border: 1px solid black;
     }
+    input {
+        text-align: center;
+    }
     </style>
 </head>
 
@@ -92,31 +95,49 @@
         </div>
     </div>
     <script type="text/javascript">
-    const besAjax = BesAjaxRequest()
+    /*  BesAjaxRequest(options)
+        @params options: object 
+        這些是default值
+    */
+    const besAjax = BesAjaxRequest({
+        log : false,
+        resolveFirst: false,
+        poolSize: 5,
+    });
+    /*也可之後再做設定*/
     besAjax.log = true;
     besAjax.resolveFirst = false;
     besAjax.poolSize = 5;
-    const defaultRequest = besAjax.createRequest({
-        host: 'http://127.0.0.1:3000'
-    }, {
+    /*產生一個root request*/
+    const defaultRequest = besAjax.createRequest({//第一個option是request的參數
+        host: 'http://127.0.0.1:3000' 
+    }, {//第二個option是處理request的設定 ex: timeout   這裡的color只是我做demo用, 非模組內的參數
         responseType: 'text',
         primary: 5,
         timeout: 4000,
         color:'lightgray',
     })
-
+    //每個request可以有自己的onsucces, onerror functions, child request也會繼承到
+    defaultRequest.onsuccess = function(){
+        console.log('%c request success :)','font-size:large;font-weight:bold');
+    }
+     defaultRequest.onerror = function(){
+        console.log('%c request failed :(','font-size:large;font-weight:bold;color:red');
+    }
+    /*之後便可以根據先前的request繼承產生不同的新的request*/
     const badRequest = defaultRequest.extend({
         path: 'api/fatal'
     }, {
         retry: 5,
         sleep: 500,
+        //expofn: function(x,a){let y=a+(x)*100; return (y>3000)?3000:y;},
         color:'red',
     })
     const delayRequest = defaultRequest.extend({
         path: 'api/delay'
     }, {
-        name: 'delayRequest',
-        primary: 0,
+        name: 'delayRequest',//取名字, 在log或是debug時候就能知道是哪一個request
+        primary: 0,//優先順序 0 最優先
         color: 'rgba(0,0,255,0.7)',
     })
     const instantRequest = defaultRequest.extend({
@@ -124,7 +145,7 @@
     }, {
         name: 'instantRequest',
         primary: 1,
-        responseType: 'json'
+        responseType: 'json'//處理response的方式：response回來是一個body物件，用text, json, blob等等方式處理(詳見fetch的response物件)
     })
 
     const app = new Vue({
@@ -147,6 +168,8 @@
             instantRequest2: instantRequest.extend({}, { name: 'instantRequest2', primary: 5, responseType: 'text' })
         }
     })
+
+    //這個是global的success, error handle function, 所有besAjax產生的request都套用
     besAjax.successHandler = function(res, name) {
         app.results.unshift(`[${name} done]: response: ${res}`)
         if (app.results.length > 30)
@@ -157,6 +180,7 @@
         if (app.results.length > 30)
             app.results.pop()
     }
+    //on pool, pool發生變化時，也是為了demo平常應該不太會用到
     besAjax.taskPool.on('pool', function() {
         app.exePool = besAjax.taskPool.exePool;
         app.waitingPool = besAjax.taskPool.waitingPool

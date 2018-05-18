@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>logsys</title>
+	<script src="scripts/logsys.js"></script>
+	<script src="scripts/ajaxHandler.js"></script>
+	 <!--vue.js-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <style type="text/css">
+    	button{
+    		cursor: pointer;
+    		border: 1px solid black;
+    		background-color: lightgray;
+    		padding: 10px;
+    		margin: 5px;
+    		transition: all 1s;
+    	}
+    	button:hover{
+    		background-color: white !important;
+    	}
+    	#app{
+    		text-align: center;
+    		padding-top: 100px;
+    	}
+    	.extend{
+    		opacity: 1;
+    		border: 1px solid black;
+    		display: flex;
+    		flex-direction: column;
+    		justify-content: center;
+    	}.extend button{
+    		background-color: orange;
+    	}
+    </style>
+</head>
+<body>
+	<div id="app">
+		<button v-for="index in 3" :logsys="'click btn'+index">{{index}}</button>
+		<button v-on:click="warn">warn</button>
+		<button v-on:click="error">error</button>
+		<button v-on:click="api" logsys="click api btn">api</button>
+		<button v-on:click="log" logsys="log">log</button>
+		<a href="/" logsys="link to '/'">link</a>
+		<div class="extend">
+			<button v-for="index in 5" :logsys="'click list'+index">list {{index}}</button>
+		</div>
+		<button v-on:click="sendLogs" style="background-color: lime;">send logs</button>
+		<div style="text-align: left" v-for="l in logs">
+			<div>{{l}}</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		const logsys = new LogSystem({
+			max:20,
+			prefix:'[LOGSYS]:',
+			debug: true
+		});
+		const ajaxHandler = new BesAjaxRequest();
+		const defualtRequest = ajaxHandler.createRequest({
+			host:'http://127.0.0.1:3000',
+			path:'api/delay'
+		},{
+			responseType: 'text',
+			name: 'defualtRequest'
+		});
+		defualtRequest.onsuccess=function(){
+			console.log('onsucess 1')
+			//send log
+			logsys.log('[Request]: '+this.options.name+' done.')
+		}
+		defualtRequest.onerror = function(){
+			logsys.log('[Request]: '+this.options.name+' failed.')
+		}
+		const request2=defualtRequest.extend({path:'api'},{responseType: 'json',name:'request2'})
+		request2.onsuccess = function(){
+			console.log('onsucess 2')
+		}
+		const sendLogs = defualtRequest.extend({method:'post',headers: { 'Content-Type': 'application/json' },path:'api/logsys'},{name:'sendLogs'})
+		const vm = new Vue({
+			el:'#app',
+			data:{
+				logs:logsys.get().log
+			},
+			methods:{
+				log: function(){
+					console.log(logsys.storage)
+				},
+				warn: function(){
+					logsys.warn('warn btn')
+				},
+				error: function() {
+					logsys.error('error btn')
+				},
+				api: function(){
+					request2.send().then((res)=>{
+						console.log(res)
+					})
+				},
+				sendLogs: function(){
+					sendLogs.fetchoptions.body = JSON.stringify(logsys.get());
+					sendLogs.send();
+				}
+			}
+		})
+	</script>
+</body>
+</html>
