@@ -39,9 +39,35 @@
 #app .demo{
 	padding: 5px 5px 5px 235px;
 }
+.mobile-bar{
+	display: none;
+	opacity: 0.3;
+	cursor: pointer;
+	position: relative;
+	top: 0;
+	left: 100%;
+	border: 1px solid gray;
+	transform: translate(15px, -5px);
+	width: 50px;
+	transition: opacity 0.5s;
+}.mobile-bar:hover{
+	opacity: 1;
+}.mobile-bar img{
+	width: 100%;
+}
 @media only screen and (max-width: 768px){
 	#app .demo{
 		padding: 5px 5px 5px 5px;
+	}
+	.mobile-bar{
+		display: block;
+	}
+	#app .list{
+		transition: transform 0.7s;
+		transform: translateX(-100%);
+	}
+	#app .show.list{
+		transform: translateX(0%);
 	}
 }
 .color-ticks{

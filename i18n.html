@@ -104,13 +104,16 @@
         <div class="mid-area">
             <aside>
                 <ul>
-                    <li v-for="i in o.list.0">{{i}}</li>
+                    <li v-for="i in o.list">{{i}}</li>
                 </ul>
             </aside>
             <section>
             	<div style="font-size: 27px;">{{o.sectiontitle}}</div>
             	<a href="/i18n2.html">{{o.link}}</a>
-                <div style="font-size: 23px;color" i18n="o.section.0"></div>
+                <div style="font-size: 23px;color" v-for="s in o.section">
+                    <div v-if="s.style" :class="s.style">{{s.text}}</div>
+                    <div v-else>{{s}}</div>
+                </div>
                 <div v-for="i in 5" class="firstLetter">{{i}}. In both cases, the instance will become a fragment instance which doesn’t have a root element. A fragment instance’s $el will point to an “anchor node”, which is an empty Text node (or a Comment node in debug mode). What’s probably more important though, is that directives, transitions and attributes (except for props) on the component element will not take any effect - because there is no root element to bind them to: 1 2 3 4 5 There are, of course, valid use cases for fragment instances, but it is in general a good idea to give your component template a single root element. It ensures directives and attributes on the component element to be properly transferred, and also results in slightly better performance. Changing Default Options It is possible to change the default value of an option by setting it on the global Vue.options object. For example, you can set Vue.options.replace = false to give all Vue instances the behavior of replace: false. Use this feature carefully, and use it only when you are starting a new project, because it affects the behavior of every instance.</div>
             </section>
         </div>

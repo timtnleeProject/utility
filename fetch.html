@@ -7,7 +7,7 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <!-- bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <script src="scripts/ajaxHandler.js"></script>
+    <script src="scripts/cdn.min.js"></script>
     <!--vue.js-->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
     <!--fetch polyfill-->
@@ -118,11 +118,11 @@
         color:'lightgray',
     })
     //每個request可以有自己的onsucces, onerror functions, child request也會繼承到
-    defaultRequest.onsuccess = function(){
-        console.log('%c request success :)','font-size:large;font-weight:bold');
+    defaultRequest.onsuccess = function(res){
+        console.log('%c request success :) '+res,'font-size:large;font-weight:bold');
     }
-     defaultRequest.onerror = function(){
-        console.log('%c request failed :(','font-size:large;font-weight:bold;color:red');
+     defaultRequest.onerror = function(err){
+        console.log('%c request failed :( '+err,'font-size:large;font-weight:bold;color:red');
     }
     /*之後便可以根據先前的request繼承產生不同的新的request*/
     const badRequest = defaultRequest.extend({

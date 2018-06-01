@@ -23,9 +23,11 @@
 </head>
 
 <body>
-    <div id="app">
+    <div id="app" v-on:click="removeClass('#app .list','show')">
         <div class="goTop" v-on:click="goTop"><span>Top</span></div>
-        <div class="list hidden-sm-down">
+        <div class="list">
+            <div class="mobile-bar" v-on:click.stop="toggleClass('#app .list','show')"><img src="assets/bar.png"></div>
+            <h3 class="mb-3">Menu</h3>
             <ul v-for="li in list">
                 <div v-if="li.group">
                     <li><a class="text-primary h6 pointer" @click="li.show=!li.show"><strong>{{li.title}}</strong></a></li>
@@ -48,7 +50,7 @@
                             <div class="color-ticks" :style="{backgroundColor: 'rgba('+color.r+','+color.g+','+color.b+','+color.a+')'}">
                             </div>
                             <div class="row" style="margin:0">
-                                <label class="col-md-3">string</label>
+                                <label class="col-md-3">str</label>
                                 <input class="col-md-9 form-control" style="font-weight: bold" name="" :value="colorHex[index]" v-on:input="strCalc(index,$event)">
                             </div>
                             <div v-for="(val, key) in color" class="row" style="margin:0">
@@ -133,9 +135,11 @@
             <card title="message-bar">
                 <card-sub title="message-bar">
                     <card-input v-model="messageBar.newMes" title="message"></card-input>
-                    <button class="btn btn-info" v-on:click="()=>messageBar.messages.unshift({message:(messageBar.count++)+'.'+messageBar.newMes})">Add Message</button>
-                    <button class="btn btn-info" v-on:click="()=>messageBar.messages.unshift({message:(messageBar.count++)+'.'+messageBar.newMes, type:'warning'})">Add Warning</button>
-                    <message-bar v-model="messageBar.messages"></message-bar>
+                    <button class="btn btn-info" v-on:click="()=>messageBar.message.unshift({message:(++messageBar.count)+'.'+messageBar.newMes})">Add Message</button>
+                    <button class="btn btn-info" v-on:click="()=>messageBar.message.unshift({message:(++messageBar.count)+'.'+messageBar.newMes, type:'warning'})">Add Warning</button>
+                    <button class="btn btn-info" v-on:click="()=>messageBar.message.unshift({message:(messageBar.count)+'.'+messageBar.newMes})">Merge Message</button>
+                    <message-bar v-model="messageBar.message"></message-bar>
+                    <div>data: {{messageBar.message}}</div>
                 </card-sub>
             </card>
             <card title="check-box">

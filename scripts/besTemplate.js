@@ -365,7 +365,9 @@ compo_create(compo_name, popupPrompt.extend({
 
 compo_name = 'message-bar';
 compo_options = {
-    template: '<div class="message-bar"><div class="mes" v-for="mes in message" :class="(mes.type)?mes.type:\'normal\'">{{mes.message}}</div></div>',
+    template: '<div class="message-bar">\
+    <div class="mes" v-for="mes in message" :class="(mes.type)?mes.type:\'normal\'">{{mes.message}}<span v-if="mes.count">({{mes.count}})</span></div>\
+    </div>',
     data: function() {
         return {
             length: 0,
@@ -385,18 +387,30 @@ compo_options = {
     },
     computed: {
         message: function() {
+            var merge = false;
+            if(this.length<this.value.length && this.value[1]){ //check merge
+                if(this.value[0].message===this.value[1].message){
+                    this.value[1].type = this.value[0].type;
+                    this.value[1].count = (this.value[1].count)?this.value[1].count+1:1;
+                    merge = true;
+                }
+            }
             var value = this.value;
             var me = this;
             if(value.length> this.max){
                 value.pop()
             }
+            if(merge)
+                this.value.shift()
             if (value.length > 0) {
                 if (this.timer)
                     clearTimeout(this.timer);
                 this.timer = setTimeout(function() {
+                    me.length = value.length
                     value.pop()
                 }, this.time)
             }
+            this.length = this.value.length;
             return value;
         }
     }

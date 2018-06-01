@@ -152,8 +152,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 on: true
             },
             messageBar: {
-                messages: [],
-                newMes: 'new message',
+                message: [],
+                newMes: 'new ',
                 count: 0
             },
             checkBox: {
@@ -261,6 +261,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 color.r = parseInt(r,16);
                 color.g = parseInt(g,16);
                 color.b = parseInt(b,16);
+            },
+            toggleClass:function(query,cla){
+                const el = document.querySelector(query);
+                if(el.classList.contains(cla))
+                    el.classList.remove(cla)
+                else
+                    el.classList.add(cla)
+            },
+            removeClass:function(query,cla){
+                const el = document.querySelector(query);
+                if(el.classList.contains(cla))
+                    el.classList.remove(cla)
             }
         },
         computed: {

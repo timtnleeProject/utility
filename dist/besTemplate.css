@@ -123,7 +123,8 @@
   top: 0;
   left: 0;
   width: 100vw;
-  text-align: center; }
+  text-align: center;
+  font-weight: bold; }
   .message-bar .success {
     color: lightgreen; }
   .message-bar .warning {
