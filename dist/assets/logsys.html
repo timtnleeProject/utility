@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>logsys</title>
+    <script src="/logsys.bundle.js"></script>
+    <style type="text/css">
+    	button{
+    		cursor: pointer;
+    		border: 1px solid black;
+    		background-color: lightgray;
+    		padding: 10px;
+    		margin: 5px;
+    		transition: all 1s;
+    	}
+    	button:hover{
+    		background-color: white !important;
+    	}
+    	#app{
+    		text-align: center;
+    		padding-top: 100px;
+    	}
+    	.extend{
+    		opacity: 1;
+    		border: 1px solid black;
+    		display: flex;
+    		flex-direction: column;
+    		justify-content: center;
+    	}.extend button{
+    		background-color: orange;
+    	}
+    </style>
+</head>
+<body>
+	<div id="app">
+		<button v-for="index in 3" :logsys="'click btn'+index">{{index}}</button>
+		<button v-on:click="warn">warn</button>
+		<button v-on:click="error">error</button>
+		<button v-on:click="api" logsys="click api btn">api</button>
+		<button v-on:click="log" logsys="log">log</button>
+		<a href="/" logsys="link to '/'">link</a>
+		<div class="extend">
+			<button v-for="index in 5" :logsys="'click list'+index">list {{index}}</button>
+		</div>
+		<button v-on:click="sendLogs" style="background-color: lime;">send logs</button>
+		<button v-on:click="clearLogs" style="background-color: red;">clear logs</button>
+		<div style="text-align: left" v-for="l in logs">
+			<div>{{l}}</div>
+		</div>
+	</div>
+</body>
+</html>

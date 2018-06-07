@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>lazy</title>
+    <script src="/lazy.bundle.js"></script>
+</head>
+
+<body>
+    <style type="text/css">
+    header {
+    	height: 100px;
+        position: relative;
+        z-index: 100;
+    }
+
+    header .right {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 30px;
+    }
+
+    header .lang-list {
+        width: 150px;
+        padding: 10px;
+        position: absolute;
+        right: 0;
+        border: 1px solid gray;
+        background-color: white;
+    }
+
+    .lang-btn {
+        padding: 5px;
+        background-color: white;
+        border: 1px solid gray;
+        cursor: pointer;
+        transition: background-color 1s;
+    }
+
+    .lang-btn:hover {
+        background-color: lightgray;
+    }
+	li {
+        cursor: pointer;
+        padding: 5px;
+        color: #bb0003;
+    }
+
+    li:hover {
+        background-color: #eee;
+    }
+    body {
+        height: 5000px;
+    }
+
+    .flex {
+    	display: flex;
+        position: relative;
+    }
+
+    .img-container {
+    	position: relative;
+        width: 25%;
+        border: 1px solid black;
+    }
+
+    .col {
+        width: 100%;
+    }
+
+    .img-container img {
+        width: 100%;
+    }
+
+    .text {
+        padding: 20px 5px 20px 5px;
+    }
+
+    h5 {
+        font-weight: bold;
+        font-size: large;
+    }
+    </style>
+</body>
+
+<div id="app" @click="closeGlobShow">
+    <header>
+    	<div>visit http://  to see i18n</div>
+        <span style="font-size: 24px">{{o.title}}</span>
+        <div class="right">
+            <button class="lang-btn" v-on:click.stop="show=!show">{{o.lang}}</button>
+            <ul v-if="show" class="lang-list">
+                <li v-for="(l,index) in langList" v-on:click="switchLang(l)">{{o.langList[index]}}</li>
+            </ul>
+        </div>
+    </header>
+    <div class="flex">
+    <div v-for="index in 4" class="img-container">
+        <div v-for="i in 72" class="col">
+            <img class="lazy-load" :lazy-src="'/assets/image/'+((i+index)%4+1)+'.jpg?i='+i" alt="">
+            <div class="text">
+                <h5>{{o.subTitle}}</h5>
+                <p>{{o.content}}</p>
+                <a>link</a>
+            </div>
+        </div>
+    </div>
+	</div>
+</div>
+
+</html>
