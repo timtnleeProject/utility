@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>build</title>
+    <script src="/web-build/utility.min.js"></script>
+    <style type="text/css">
+    #app {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    li {
+        list-style: none;
+    }
+
+    .ajax-btn {
+        margin-top: 20px;
+        font-size: 21px;
+        padding: 5px 20px;
+        cursor: pointer;
+        background-color: lightgray;
+        border: 1px solid gray;
+        transition: all 1s;
+    }
+
+    b {
+        color: blue;
+    }
+    .m{
+        margin: 10px;
+    }
+  	.ajax-btn:hover {
+        background-color: gray;
+    } 
+    .green{
+    	color: green;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Build Bundled Scripts</h1>
+        <h4>Visit <b>http://127.0.0.1:@port</b> instead of <b>localhost:@port</b> to allow ajax.</h4>
+        <a href="/doc" style="color: lightskyblue">文件結構、說明</a>
+        <h4>MODULES:</h4>
+        <div>
+        	<li v-for="c in chunks"><input type="checkbox" v-model="c.checked">{{c.name}}</li>
+        </div>
+        <div class="m">
+        	<span>You chose:</span>
+        	<span class="green" v-for="c in chunks" v-if="c.checked">{{c.name}},</span>
+        </div>
+        <div class="m">
+            FileName : <input v-model="name" style="text-align: right;width:80px;">.js
+        </div>
+        <ajax-btn text="build" :bes_ajax="buildRequest" :fetch_options="body"></ajax-btn>
+        <h4>{{response.text}}</h4>
+        <div v-if="response.link">File At <b>/dist/build-scripts/{{response.name}}</b></div>
+        <div v-if="response.link">Download : <a :href="response.link" download>{{response.name}}</a></div>
+    </div>
+    <script type="text/javascript">
+    const besAjax = BesAjaxRequest();
+    const askChunks = besAjax.createRequest({
+        host: window.location.origin,
+        path: 'chunks'
+    }, {
+        responseType: 'json'
+    })
+    const buildRequest = askChunks.extend({
+    	path:'build',
+    	method: 'post',
+    	headers: {'Content-Type':'application/json'}
+    })
+    buildRequest.onsuccess = function(res){
+        vm.response = res;
+    }
+    const vm = new Vue({
+        el: '#app',
+        data: {
+        	chunks:[],
+        	buildRequest: buildRequest,
+            response : {text:'ready to build.'},
+            name:'utility.min'
+        },
+        computed: {
+        	body : function() {
+        		let ary = []
+        		this.chunks.forEach(function(c){
+        			if(c.checked){
+        				ary.push(c.name)
+        			}
+        		})
+        		return {body: JSON.stringify({chunks:ary,fileName:this.fileName})};
+        	},
+            fileName: function(){
+                return this.name+'.js'
+            }
+        }
+    })
+
+    askChunks.send().then((res) => {
+    	let ary = [];
+       	res.chunks.forEach(function(c,i){
+       		ary[i] = {
+       			checked: false,
+       			name: c
+       		}
+       	})
+       	vm.chunks = ary;
+    })
+    </script>
+</body>
+
+</html>

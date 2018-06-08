@@ -7,21 +7,34 @@ module.exports = {
     },
     output: {
         filename: '[name].min.js',
-        path: path.resolve(__dirname, './dist')
+        path: path.resolve(__dirname, './dist/build-scripts')
     },
     module: {
         rules: [{
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader']
+                use: [
+                    { loader: 'style-loader' },
+                    {
+                        loader: 'css-loader',
+                        options: { minimize: true }
+                    }
+                ]
             }, {
                 test: /\.sass$/,
-                use: ['style-loader', 'css-loader', 'sass-loader']
+                use: [
+                    { loader: 'style-loader' },
+                    {
+                        loader: 'css-loader',
+                        options: { minimize: true } //minimize css
+                    },
+                    { loader: 'sass-loader' }
+                ]
             },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: 'babel-loader',
+                    loader: 'babel-loader', //babel loader to es5
                     options: {
                         presets: ['es2015']
                     }

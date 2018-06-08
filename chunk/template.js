@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.js';
+import Vue from 'vue/dist/vue.min.js';
 import Datepicker from 'vuejs-datepicker';
 import besTemplate from '~/src/besTemplate';
 import '~/sass/besTemplate.sass';

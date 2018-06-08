@@ -1,19 +1,23 @@
 /*entry file for building production CDN js file*/
 
-//template (include vue)
+/*	@ template (including vue)	*/
 import '~/chunk/template';
 
-//quill (this is large)
+/*
+	@ Quill, text-editor.
+	This part is very large (about 250KB).
+	Excluding this part is recommanded if you're not using it. 
+*/
 //import '~/chunk/text-editor'
 
-//ajax-handler
+/*	@ ajax-handler	*/
 import '~/chunk/ajax-handler';
 
-//i18n
+/*	@ i18n	*/
 import '~/chunk/i18n'
 
-//log-system
+/*	@ log-system	*/
 import '~/chunk/logsys'
 
-//lazyLoad
+/*	@ lazyLoad 		*/
 import '~/chunk/lazy-load';
