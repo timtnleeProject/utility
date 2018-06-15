@@ -1,1 +1,1 @@
-import '~/chunk/ajax-handler.js';import '~/chunk/i18n.js';import '~/chunk/lazy-load.js';
+import '~/chunk/ajax-handler.js';import '~/chunk/lazy-load.js';import '~/chunk/logsys.js';

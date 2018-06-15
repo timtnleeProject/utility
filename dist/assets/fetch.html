@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch demo</title>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <!-- customer script style -->
+    <style type="text/css">
+    #app {padding: 10px;}.flex {align-items: flex-start;display: flex;margin-bottom: 10px;}.flex-col {margin-right: 20px;display: flex;justify-content: center;flex-direction: column;}.pool {flex-basis: 150px;text-align: center;}.box {width: 100%;box-sizing: border-box;border: 1px solid black;}input {text-align: center;}
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h3>BesAjaxRequest</h3>
+        <h4>Open Console To See Requests' logs.</h4>
+        <p>Have any question: litingen1995@gmail.com</p>
+        <div class="flex" style="flex-wrap: wrap;">
+            <div class="flex-col">
+                <label>delay,primary {{delayRequest.options.primary}}</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="delayRequest" :style="{backgroundColor:delayRequest.options.color}"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>delay post,primary {{postRequest.options.primary}}</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="postRequest" :style="{backgroundColor:postRequest.options.color}"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>instant,primary {{instantRequest.options.primary}}</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest" :style="{backgroundColor:instantRequest.options.color}"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>instant20,primary {{instantRequest2.options.primary}}</label>
+                <ajax-btn class="btn btn-primary" text="send" :bes_ajax="instantRequest2" :style="{backgroundColor:instantRequest2.options.color}"></ajax-btn>
+            </div>
+            <div class="flex-col">
+                <label>send 10 badRequest 10</label>
+                <button class="btn btn-primary" onclick="sendBadRequest()" style="background-color: red">send</button>
+            </div>
+        </div>
+        <div class="flex">
+            <div class="contain-box flex-col pool">
+                <h4>Settings</h4>
+                <h5>poolSize</h5>
+                <input type="text" v-model="controll.poolSize">
+                <h5>log</h5>
+                <on-off-btn v-model="controll.log"></on-off-btn>
+                <h5>resolveFirst</h5>
+                <on-off-btn v-model="controll.resolveFirst"></on-off-btn>
+                <h5>abort</h5>
+                <on-off-btn v-model="controll.abort"></on-off-btn>
+            </div>
+            <div class="contain-box flex-col pool">
+                <h4>exePool</h4>
+                <div class="box" v-for="t in exePool" :style="{backgroundColor : t.options.color}">{{t.options.name}}</div>
+            </div>
+            <div class="contain-box flex-col pool">
+                <h4>waitingPool</h4>
+                <div class="box" v-for="t in waitingPool" :style="{backgroundColor : t.options.color}">{{t.options.name}}</div>
+            </div>
+            <div class="contain-box flex-col">
+                <h4>results ( 30 lines ):</h4>
+                <div v-for="r in results">{{r}}</div>
+            </div>
+        </div>
+    </div>
+    <script src="/ajaxHandler.js"></script>
+</body>
+
+</html>

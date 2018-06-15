@@ -1,14 +1,16 @@
-const path = require('path')
+//webpack-dev-server的config file
+const path = require('path');
 
 module.exports = {
     mode: 'development',
     entry: {
         demo: path.resolve(__dirname, './main/demo.js'),
         logsys: path.resolve(__dirname, './main/logsys.js'),
-        lazy: path.resolve(__dirname, './main/lazy.js')
+        lazy: path.resolve(__dirname, './main/lazy.js'),
+        ajaxHandler: path.resolve(__dirname, './main/ajaxHandler.js')
     },
     output: {
-        filename: '[name].bundle.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, './dist')
     },
     module: {

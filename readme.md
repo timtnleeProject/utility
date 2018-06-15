@@ -12,20 +12,26 @@
 
 ### dev-server demo ###
 
-`npm install`
+```bash
+$npm install
 
-`npm start`
+$npm start
+```
 
 ### build ###
 
 Edit bundled modules in `build.js`
 
-`npm run build` 
+```bash
+$npm run build
+``` 
 
 build script in `~/dist/utility.min.js`
 
 ### web-build ###
 
-`npm run web-build`
+```bash
+$npm run web-build
+```
 
 Chose bundled modules on webpage.

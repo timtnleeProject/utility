@@ -1,3 +1,4 @@
+//build script的config file 
 const path = require('path')
 
 module.exports = {

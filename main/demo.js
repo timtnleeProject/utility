@@ -1,12 +1,12 @@
 //entry file for dev-server demo.html
 import Vue from 'vue/dist/vue.js';
 import Datepicker from 'vuejs-datepicker';
-import besTemplate from '../src/besTemplate';
+import besTemplate from '../src/besTemplate/besTemplate';
 import {i18nVue} from '../src/i18n';
 
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
-import '../sass/besTemplate.sass';
+import '../src/besTemplate/besTemplate.sass';
 import '../dist/assets/css/demo.css';
 var list = [
 	{
