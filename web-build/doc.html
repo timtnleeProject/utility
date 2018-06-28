@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Doc</title>
+	<style type="text/css">
+		article{
+			padding: 20px;
+			border-style: solid;
+			border-color: lightgray;
+			border-width: 1px 0;
+		}
+		.code{
+			background-color: lightgray;
+			color: gray;
+			padding: 3px;
+			margin: 0 2px;
+		}
+	</style>
+</head>
+<body>
+	<h1>目錄說明</h1>
+	<article>
+		<h2>src</h2>
+		<li>模組的source code</li>
+	</article>
+	<article>
+		<h2>dist</h2>
+		build-scripts
+		<ul><li>存放build完成的js檔</li><li>不會上git</li></ul>
+		assets
+		<ul><li>webpack-dev-server測試的assets路徑</li><li><span class="code">npm start</span>啟動dev-server (編寫模組測試用)</li></ul>
+		index.html
+		<ul><li>dev-server的index page</li></ul>
+	</article>
+	<article>
+		<h2>main</h2>
+		<li>dev-server 各模組的entry point</li>
+	</article>
+	<article>
+		<h2>chunk</h2>
+		<li>模組轉成CDN Script的入口</li>
+		<li>import 模組的 source code， 並做處理轉成網頁可用的方式(ex: 將模組方法名放在全域)</li>
+		<li>每個js file代表一個module , 在此目錄新增，web-build可選擇的模組會直接套用選項</li>
+	</article>
+	<article>
+		<h2>sass</h2>
+		<li>放模組相關的sass file</li>
+	</article>
+	<article>
+		<h2>web-build</h2>
+		<li>提供一個頁面可以客製化要bundle的模組</li>
+		<li><span class="code">npm run web-build</span>來啟動server</li>
+	</article>
+	<article>
+		<h2>build</h2>
+		<li>production 的webpack entry file. 集合各個模組，也可以手動改要import的模組。</li>
+		<li><span class="code">npm run build</span></li>
+	</article>
+	<article>
+		<h2>webpack.config.js</h2>
+		<li>dev-server用到的webpack config</li>
+	</article>
+	<article>
+		<h2>prod.config.js</h2>
+		<li>production build script用到的webpack config</li>
+		<li>web-build 模式是基於這份config作客製化</li>
+	</article>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "name": "utility-pack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "webpack --config webpack.prod.js",
+    "web-build": "node web-build/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vue",
+    "template"
+  ],
+  "author": "timtnlee",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-loader": "^7.1.4",
+    "babel-plugin-root-import": "^6.1.0",
+    "node-sass": "^4.9.0",
+    "sass-loader": "^7.0.3",
+    "webpack": "^4.12.2",
+    "webpack-cli": "^2.1.5",
+    "webpack-dev-server": "^3.1.4",
+    "webpack-merge": "^4.1.3"
+  },
+  "dependencies": {
+    "bes-ajax": "^1.0.7",
+    "body-parser": "^1.18.3",
+    "css-loader": "^0.28.11",
+    "express": "^4.16.3",
+    "lz-string": "^1.4.4",
+    "quill": "^1.3.6",
+    "style-loader": "^0.21.0",
+    "vue": "^2.5.16",
+    "vuejs-datepicker": "^1.5.2"
+  }
+}

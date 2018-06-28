@@ -1,0 +1,145 @@
+.ajax-btn
+	.pending
+		display: flex
+		justify-content: center
+	.loading
+		width: 1em
+		height: 1em
+		border: 2px dotted white
+		border-radius: 50%
+		box-sizing: border-box
+		animation: spin 2s infinite
+.ajax-btn-default
+
+.ajax-btn-default.ajax-btn-ready
+	border: 1px solid black
+	color: black
+.ajax-btn-default.ajax-btn-pending
+	border: 1px solid black
+	background-color: black
+.ajax-btn-default.ajax-btn-success
+	border: 1px solid green
+	color: green
+.ajax-btn-default.ajax-btn-fail
+	border: 1px solid red
+	color: red
+.ajax-btn-content
+	height: 1em
+@keyframes spin
+	from
+		transform: rotate(0deg)
+	to
+		transform: rotate(360deg)
+
+$on-off-btn-border-radius: 4px
+$on-off-btn-bar-width: 20px
+$on-off-btn-bg-color: rgba(0,187,179,0.8)
+$on-off-btn-border-color: #00bbb3
+.on-off-btn
+	cursor: pointer
+	box-sizing: content-box
+	border-radius: $on-off-btn-border-radius
+	padding: 1px
+	background-color: $on-off-btn-border-color
+	.wrap-over
+		width: 100%
+		overflow: hidden
+	.wrap
+		box-sizing: content-box
+		display: flex
+		transition: transform 0.4s
+		width: 200%
+		.on, .off
+			text-align: center
+			flex-grow: 1
+	.on
+		padding-right: $on-off-btn-bar-width/4
+		background-color: $on-off-btn-bg-color
+	.off
+		padding-left: $on-off-btn-bar-width/4
+		background-color: #e6e6e6
+		color: gray
+		box-shadow: inset 0 3px 5px rgba(0,0,0,0.1)
+	.bar
+		width: $on-off-btn-bar-width
+		height: 100%
+		position: absolute
+		top: 0
+		left: 50%
+		box-sizing: border-box
+		transform: translateX(-50%)
+		border-radius: $on-off-btn-border-radius
+		background-color: white
+		border: 1px solid rgba(0,0,0,0.2)
+.on-off-btn-on
+	.wrap
+		transform: translateX(0)
+.on-off-btn-off
+	.wrap
+		transform: translateX(-50%)
+
+.popup
+	position: fixed
+	width: 100vw
+	height: 100vh
+	top: 0
+	left: 0
+	background-color: rgba(0,187,179,0.7)
+	z-index: 1500
+	display: flex
+	flex-direction: column
+	justify-content: center
+	align-items: center
+	.content
+		border-radius: 5px
+		box-shadow: inset 0 3px 5px rgba(0,0,0,0.1)
+		background-color: white
+		box-sizing: border-box
+		padding: 40px
+		display: flex
+		flex-direction: column
+		// justify-content: center
+		align-items: center
+.message-bar
+	opacity: 0.9
+	position: fixed
+	z-index: 1400
+	top: 0
+	left: 0
+	width: 100vw
+	text-align: center
+	font-weight: bold
+	.success
+		color: lightgreen
+	.warning
+		color: red
+	.normal
+		color: #646478
+	.mes
+		padding: 10px
+		background-color: white
+		border-bottom: 1px solid #646478
+// .mult-tab
+// 	box-sizing: border-box
+// 	width: 100%
+// 	display: flex
+// 	flex-direction: column
+// 	.tab-group
+// 		display: flex
+// 		.tab
+// 			padding: 5px
+// 			border-radius: 5px 5px 0px 0px
+// 			border-width: 1px 1px 0 1px 
+// 			border-color: black
+// 			border-style: solid
+// 			cursor: pointer
+// 			background-color: gray
+// 		.tab.active
+// 			z-index: 100
+// 			background-color: white
+// 	@for $i from 1 through 30
+// 		.tab:nth-child(#{$i})
+// 			transform: translateX(($i - 1)*-2px)
+// 	.context
+// 		padding: 5px
+// 		border: 1px solid gray

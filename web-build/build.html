@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>build</title>
+    <script src="/web-build/utility.min.js"></script>
+    <style type="text/css">
+    #app {
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    li {
+        list-style: none;
+    }
+
+    .ajax-btn {
+        margin-top: 20px;
+        font-size: 21px;
+        padding: 5px 20px;
+        cursor: pointer;
+        background-color: lightgray;
+        border: 1px solid gray;
+        transition: all 1s;
+    }
+
+    b {
+        color: blue;
+    }
+    .m{
+        margin: 10px;
+    }
+  	.ajax-btn:hover {
+        background-color: gray;
+    } 
+    .green{
+    	color: green;
+    }
+    .con{
+        z-index: 0;
+        opacity: 0.1;
+        pointer-events: none;
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+    .zoom{
+        width: 100px;
+        height: 100px;
+        animation: zoom 5s infinite;
+    }
+    .re-spin {
+        width: 80%;
+        height: 80%;
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        box-sizing: border-box;
+        border-radius: 50%;
+        border: 4px dashed red;
+        animation: respin 19s linear infinite; 
+    }
+    .spin{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 4px dashed black;
+        border-radius: 50%;
+        pointer-events: none;
+        box-sizing: border-box;
+        animation: spin 19s linear infinite; 
+    }
+    .moveX {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        animation: moveX 10s infinite;
+    }.moveY {
+        width: 100%;
+        height: 100%;
+        animation: moveY 6s infinite;
+    }
+    @keyframes spin {
+    0% {transform: rotate(0deg)}
+    50% {transform: rotate(3600deg)}
+    100% {transform: rotate(0deg)}
+    } 
+    @keyframes respin {
+    0% {transform: rotate(0deg)}
+    50% {transform: rotate(-3600deg)}
+    100% {transform: rotate(0deg)}
+    }
+    @keyframes zoom {
+    0% {transform: scale(0.6)}
+    50% {transform: scale(1)}
+    100% {transform: scale(0.6)}
+    }
+
+    @keyframes moveX{
+        0% { transform: translateX(0px) translateX(0%)}
+        50%{ transform: translateX(100vw) translateX(-100%)}
+        100%{ transform: translateX(0px) translateX(0%)}
+    }
+    @keyframes moveY{
+        0% { transform: translateY(0px) translateY(0%)}
+        50%{ transform: translateY(100vh) translateY(-100%)}
+        100%{ transform: translateY(0px) translateY(0%)}
+    }
+    </style>
+</head>
+
+<body>
+    <div class="con"><div class="zoom"><div class="moveY"><div class="moveX"><div class="spin"></div><div class="re-spin"></div></div></div></div></div>
+
+    <div id="app">
+        <h1>Build Bundled Scripts</h1>
+        <h4>Visit <b>http://127.0.0.1:@port</b> instead of <b>localhost:@port</b> to allow ajax.</h4>
+        <a href="/doc" style="color: lightskyblue">文件結構、說明</a>
+        <h4>MODULES:</h4>
+        <div>
+        	<li v-for="c in chunks"><input type="checkbox" v-model="c.checked">{{c.name}}</li>
+        </div>
+        <div class="m">
+        	<span>You chose:</span>
+        	<span class="green" v-for="c in chunks" v-if="c.checked">{{c.name}},</span>
+        </div>
+        <div class="m">
+            FileName : <input v-model="name" style="text-align: right;width:80px;">.js
+        </div>
+        <ajax-btn text="build" :bes_ajax="buildRequest" :fetch_options="body"></ajax-btn>
+        <h4>{{response.text}}</h4>
+        <div v-if="response.link">File At <b>/dist/build-scripts/{{response.name}}</b></div>
+        <div v-if="response.link">Download : <a :href="response.link" download>{{response.name}}</a></div>
+    </div>
+    <script type="text/javascript">
+    const besAjax = BesAjaxRequest();
+    const askChunks = besAjax.createRequest({
+        host: window.location.origin,
+        path: 'chunks'
+    }, {
+        responseType: 'json'
+    })
+    const buildRequest = askChunks.extend({
+    	path:'build',
+    	method: 'post',
+    	headers: {'Content-Type':'application/json'}
+    })
+    buildRequest.onsuccess = function(res){
+        vm.response = res;
+    }
+    const vm = new Vue({
+        el: '#app',
+        data: {
+        	chunks:[],
+        	buildRequest: buildRequest,
+            response : {text:'ready to build.'},
+            name:'utility.min'
+        },
+        computed: {
+        	body : function() {
+        		let ary = []
+        		this.chunks.forEach(function(c){
+        			if(c.checked){
+        				ary.push(c.name)
+        			}
+        		})
+        		return {body: JSON.stringify({chunks:ary,fileName:this.fileName})};
+        	},
+            fileName: function(){
+                return this.name+'.js'
+            }
+        }
+    })
+
+    askChunks.send().then((res) => {
+    	let ary = [];
+       	res.chunks.forEach(function(c,i){
+       		ary[i] = {
+       			checked: false,
+       			name: c
+       		}
+       	})
+       	vm.chunks = ary;
+    })
+    </script>
+</body>
+
+</html>
